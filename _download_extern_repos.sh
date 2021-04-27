@@ -17,18 +17,6 @@ function help() {
   echo "Note that GitHub extracting may fail due to network problem"
 }
 
-#function _clash() {
-#  # clash appimage for get over GFW
-#  clash_ver=$(get_gh_latest_release Dreamacro/clash)
-#  echo "Getting clash, version: $clash_ver"
-#  if (wget_link_source "clash" \
-#      "https://github.com/Dreamacro/clash/releases/$clash_ver/clash-linux-amd64-$clash_ver.gz" \
-#      clash.gz); then
-#    gunzip clash.gz
-#    chmod +x clash
-#  fi
-#}
-
 function download_extern_repos() {
   for name in "${repos_names[@]}"; do
     unset url
@@ -41,9 +29,6 @@ function download_extern_repos() {
     fi
     wget_repo "$REPOS_DIR" "$name" "$url" "$output"
   done
-  #_zotero
-  #_vesta
-  #_xcrysden
 }
 
 if (( $# == 0 )); then

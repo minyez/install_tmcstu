@@ -65,8 +65,9 @@ metadata_expire=6h
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-\$releasever-\$basearch
 skip_if_unavailable=False
 EOF
-#  elif [[ "$REPO_SOURCES" == "USTC" ]]; then
-#    echo "Replacing with USTC mirror (not implemented)"
+  elif [[ "$REPO_SOURCES" == "USTC" ]]; then
+    echo "Replacing with USTC mirror (not implemented, skip)"
+    return
   elif [[ -z "$REPO_SOURCES" ]]; then
     echo "Empty repo source, skip."
     return
@@ -90,9 +91,6 @@ enabled=1
 gpgcheck=1
 gpgkey=https://packages.microsoft.com/keys/microsoft.asc"
 EOF
-  # Docker engine
-  dnf -y install dnf-plugins-core
-  dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
 }
 
 replace_fedora_mirror "$@"

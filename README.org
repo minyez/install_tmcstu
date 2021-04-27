@@ -35,11 +35,11 @@ chmod +x install_repos_pkgs.sh
 ./install_repos_pkgs.sh all
 #+end_src
 
-时间约为 10 到 20 分钟. 这会为你安装
+时间约为 10 到 20 分钟. 这会安装
 
 - ViM, XmGrace, TeXLive, Visual Studio Code
 - GCC (包括 gfortran), make, cmake, autoconfig, ...
-- XCrySDen, VESTA, JabRef, Zotero
+- XCrySDen, VESTA, JabRef, Zotero, Chrome
 
 ** 环境初始化
 初始用户为 =tmcstu=.
@@ -48,6 +48,7 @@ Fedora 环境初始化和基础软件安装通过 =install_tmcstu.sh= 脚本完�
 #+begin_src shell
 rsync -ar yourusername@222.29.156.110:/home/zhangmy/install_tmcstu .
 #+end_src
+注意 g09 下载可能有问题.
 
 在终端依次输入
 #+begin_src shell
@@ -59,29 +60,12 @@ chmod +x install_tmcstu.sh
 包括 Environment Module, Vim, GCC, cmake, TeX, Grace 等等.
 具体内容可以阅读该脚本.
 
-#  =init= 同时会创建 =~/local= 文件夹, 包含如下子文件夹
-#  - =programs=: 科研工具, 包括编译器, 第一性原理计算程序, 可视化工具等
-#  
-#  =init= 通常已经由前人完成. 再次执行仅会对已安装程序进行更新.
-
 ** 科研工具
 大部分与课题组有关的科研工具 (例如可视化工具, 编译器, 第一性原理计算软件),
 除了能通过 dnf, rpm 等包管理器安装且对编译环境依赖不重要的软件, 其他软件都安装在 =~/local/programs= 目录下
 #  , 并按照类型和编译器分门别类
 .
 新程序也推荐安装到该文件夹下.
-
-# 相关环境变量保存在 modulefile 文件中. 在 =.bashrc= 或 =.zshrc= 中加入
-# #+begin_src shell
-# module use ~/local/modulefiles/compiler
-# module use ~/local/modulefiles/abinitio
-# module use ~/local/modulefiles/tools
-# #+end_src
-# 之后在终端输入
-# #+begin_src shell
-# module avail
-# #+end_src
-# 即可看到可用的软件.
 
 这些程序主要以两种方式获得
 
@@ -109,9 +93,9 @@ chmod +x install_tmcstu.sh
 - XCrySDen
 - JabRef
 - Zotero
+- Chrome
 
-其中 JabRef 和 Zotero 可从 Fedora Applications 打开.
-修改 PATH 以从命令行启动.
+安装完装后, 打开一个新的终端或 =source ~/.bashrc=, 即可使用.
 
 ** CUDA toolkit
 如需安装 CUDA toolkit, 输入
