@@ -1,0 +1,6 @@
+.DS_Store
+repos
+pkgs
+
+*.pdf
+*.tex

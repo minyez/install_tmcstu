@@ -1,0 +1,167 @@
+#+TITLE: TMC 组学生 PC 使用指南
+#+EMAIL: stevezhang@pku.edu.cn
+#+AUTHOR: Min-Ye Zhang
+#+STARTUP: content
+#+ROAM_TAGS: Tips
+#+CREATED: [2021-04-12 Mon 17:02]
+#+LATEX_CLASS: article
+#+LATEX_COMPILER: xelatex
+#+OPTIONS: email:t f:t
+
+#+LATEX: \clearpage
+
+* 系统与硬件
+#+NAME: TMCSTU 主机系统与主要硬件规格
+#+ATTR_LATEX: :booktabs t
+| 项目 | 值                                                          |
+|------+-------------------------------------------------------------|
+| OS   | Fedora 32 (2021-04-12)                                      |
+| CPU  | Intel Core i7-10700 @2.90GHz, 2 threads/core \times 8 cores |
+| 内存 | Samsung 8GB DDR4-3200MT +  Hynix/Hyundai 8GB DDR4-3200MT    |
+| 硬盘 | 256G SSD (SK Hynix BC511) + 2T HDD (ST20000DM008)           |
+| GPU  | NVIDIA Quadro P620 (128 \times 4 CUDA cores, 2GB Mem)       |
+
+* 软件
+** Commands for the impatient
+
+没有耐心细读下面内容的同学, 如果你是第一次使用这台机器, 请在联网后输入以下命令:
+
+#+begin_src shell
+rsync -ar yourusername@222.29.156.110:/home/zhangmy/install_tmcstu ~/
+cd ~/install_tmcstu
+chmod +x install_tmcstu.sh
+./install_tmcstu.sh init
+chmod +x install_repos_pkgs.sh
+./install_repos_pkgs.sh all
+#+end_src
+
+时间约为 10 到 20 分钟. 这会为你安装
+
+- ViM, XmGrace, TeXLive, Visual Studio Code
+- GCC (包括 gfortran), make, cmake, autoconfig, ...
+- XCrySDen, VESTA, JabRef, Zotero
+
+** 环境初始化
+初始用户为 =tmcstu=.
+Fedora 环境初始化和基础软件安装通过 =install_tmcstu.sh= 脚本完成,
+该脚本可从工作站获取
+#+begin_src shell
+rsync -ar yourusername@222.29.156.110:/home/zhangmy/install_tmcstu .
+#+end_src
+
+在终端依次输入
+#+begin_src shell
+cd install_tmcstu
+chmod +x install_tmcstu.sh
+./install_tmcstu.sh init
+#+end_src
+以完成基础软件的安装.
+包括 Environment Module, Vim, GCC, cmake, TeX, Grace 等等.
+具体内容可以阅读该脚本.
+
+#  =init= 同时会创建 =~/local= 文件夹, 包含如下子文件夹
+#  - =programs=: 科研工具, 包括编译器, 第一性原理计算程序, 可视化工具等
+#  
+#  =init= 通常已经由前人完成. 再次执行仅会对已安装程序进行更新.
+
+** 科研工具
+大部分与课题组有关的科研工具 (例如可视化工具, 编译器, 第一性原理计算软件),
+除了能通过 dnf, rpm 等包管理器安装且对编译环境依赖不重要的软件, 其他软件都安装在 =~/local/programs= 目录下
+#  , 并按照类型和编译器分门别类
+.
+新程序也推荐安装到该文件夹下.
+
+# 相关环境变量保存在 modulefile 文件中. 在 =.bashrc= 或 =.zshrc= 中加入
+# #+begin_src shell
+# module use ~/local/modulefiles/compiler
+# module use ~/local/modulefiles/abinitio
+# module use ~/local/modulefiles/tools
+# #+end_src
+# 之后在终端输入
+# #+begin_src shell
+# module avail
+# #+end_src
+# 即可看到可用的软件.
+
+这些程序主要以两种方式获得
+
+- 可公开获取的开源免费程序: 用 =wget= 从网络上直接抓取.
+  这些程序记录在了 =extern_repos.sh= 的 =repos_names= 数组中.
+- 商业程序等较难获取的程序: 已在 TMC 工作站上存档, 用 SSH 从工作站上获取.
+  这些程序记录在 =tmcws_pkgs.sh= 的 =pkgs_names= 数组中.
+
+通过
+#+begin_src shell
+./install_tmcstu.sh repo
+./install_tmcstu.sh pkg
+#+end_src
+可分别完成免费程序的下载和工作站存档的抓取.
+抓取后的程序在 =repos= 和 =pkgs= 文件夹下.
+
+目前, 大部分抓取后的程序需要自己安装. 有部分软件已经写好了 installer, 输入
+#+begin_src shell
+./install_repos_pkgs.sh all
+#+end_src
+即可安装到 =~/local/programs/= 下, 或通过 rpm 安装到根目录中.
+目前已经完成的 installer 包括
+
+- VESTA
+- XCrySDen
+- JabRef
+- Zotero
+
+其中 JabRef 和 Zotero 可从 Fedora Applications 打开.
+修改 PATH 以从命令行启动.
+
+** CUDA toolkit
+如需安装 CUDA toolkit, 输入
+#+begin_src shell
+./install_tmcstu.sh cuda
+#+end_src
+安装完成后, 在确认 CUDA GPU 可用的情况下 (见 Q&A "启用 CUDA 独显"一节) 输入
+#+begin_src shell
+./install_tmcstu.sh vc
+#+end_src
+对 CUDA toolkit 安装进行验证.
+
+** Docker 引擎
+同样可以通过 =install_tmcstu.sh= 安装, 只需运行
+#+begin_src shell
+./install_tmcstu.sh docker
+#+end_src
+
+* Q&A
+** 启用 CUDA 独显
+对于需要使用 NVIDIA GPU 进行 CUDA 计算的同学, 首先在终端下输入 =nvidia-setting=.
+如果弹出窗口的左侧边栏中有 "GPU 0" 标签, 那就不需要做额外操作, GPU 已经可以使用.
+
+如果没有 "GPU 0" 标签, 那么表明 GPU 没有被检测到 (尽管在 Fedora 系统 "setting-details" 中可以看到显卡型号 P620).
+一种简单的办法是用 Mini DP 线或转接口连接 NVIDIA GPU 卡槽和显示器, 而非用 VGA 或 DP 连接主机背板.
+这时 GPU 也能向显示器输出高画质视频.
+
+如果你没有 Mini DP 线, 也没有观看高画质视频的需求, 只需要用 NVIDIA GPU 作 CUDA 计算,
+那么可以选择同时启用双显卡而只用集成显卡输出视频.
+这涉及以下几步操作.
+
+1. 关机, 用组里的 VGA-MiniDP 转接口, 接入 NVIDIA GPU (有四个 MiniDP 孔槽).
+2. 重启电脑, 在按下开机键的同时连续敲击 F10, 直到进入 BIOS.
+3. 进入 Adnvaced - Bulit-in Device Options, 找到 VGA Boot Options 选项, 将 NVIDIA VGA Controller 改为 Intel VGA controller.
+4. 按 F10, YES 确认保存设置, 此时机器自动重启, 进入 Fedora GUI 后会有些卡顿, 但不用惊慌.
+5. 关机. 拔出 MiniDP 转接口, 直接接入 VGA 或 DP, 重启.
+
+在安装完 CUDA-kit 后, 进入 NVIDIA CUDA 样例, 设置好环境变量后运行 =deviceQuery=
+#+begin_src shell
+./deviceQuery
+#+end_src
+或用上面脚本的 =vc= 命令来验证.
+
+如检测到 Quadro P620 则表明设置成功.
+
+** 开机后按 F10 无法进入 BIOS
+这与 BIOS 设置有关. 按 F10 后若听到 "嘟" 的一声, 那么实际上已经进入 BIOS 了, 只是显示器没有能够显示 BIOS 界面.
+为此需要保证 VGA Boot Options 的值与所接显卡一致. 在 BIOS 中修改该选项值的办法可参考 "启用 CUDA 独显"一节.
+
+* Changelog
+- 2021-04-12 草稿
+- 2021-04-26 实现部分 installer.
+
