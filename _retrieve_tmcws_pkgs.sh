@@ -29,7 +29,7 @@ function retrieve_tmcws_pkgs() {
         echo "Warning: URL of $name not set, skip"
         continue
       fi
-      sync_pkg 0 "$PKGS_DIR" "$rsync_opts" "$TMCWS_CONNECTION" \
+      rsync_pkg 0 "$PKGS_DIR" "$rsync_opts" "$TMCWS_CONNECTION" \
         "$name" "$url" "$output"
     done
   else
