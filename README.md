@@ -1,5 +1,7 @@
 # `install_tmcstu`
 
+[中文说明](README.org)
+
 This is a set of scripts to install basic tools for research purpose
 on a new student PC (Fedora 30+) in the TMC group.
 
