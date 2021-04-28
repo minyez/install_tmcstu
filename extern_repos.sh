@@ -2,6 +2,9 @@
 # This file included th names and URLs of external repositories
 # to download
 
+# some infrastructure
+source _common.sh
+
 # directory to store downloaded repositories. No need to change, basically
 REPOS_DIR="repos"
 
@@ -24,6 +27,7 @@ repos_names=(
   # placeholders for repos, without implemented URLs
   "hdf5"
   "netcdf"
+  "cp2k-7.1"
 )
 
 declare -A repos_urls
@@ -41,6 +45,7 @@ repos_urls=(
   ["libxc-4.3.4"]="http://www.tddft.org/programs/libxc/down.php?file=4.3.4/libxc-4.3.4.tar.gz"
   ["libxc-5.1.3"]="http://www.tddft.org/programs/libxc/down.php?file=5.1.3/libxc-5.1.3.tar.gz"
   ["atat3-44"]="http://alum.mit.edu/www/avdw/atat/atat3_44.tar.gz"
+  ["cp2k-7.1.0"]="https://github.com/cp2k/cp2k/archive/refs/tags/v7.1.0.tar.gz"
 )
 
 # optional array to set the name of the downloaded file
@@ -49,6 +54,7 @@ declare -A repos_outputs
 repos_outputs=(
   ["Zotero"]="zotero.tar.bz2"
   ["lapack-3.9.1"]="lapack-3.9.1.tar.gz"
+  ["cp2k-7.1.0"]="cp2k-7.1.0.tar.gz"
 )
 
 declare -A repos_installers
@@ -58,70 +64,128 @@ repos_installers=(
   ["XCrySDen"]="_xcrysden"
   ["JabRef"]="_install_repo_rpm JabRef"
   ["Chrome"]="_install_repo_rpm Chrome"
+  ["cp2k-7.1.0"]="_cp2k_710_intel"
 )
 
 # write installers here
-# installer should have single argument as the install target
+# each installer should have its first argument as the install target
+# except for using _install_repo_rpm
 #
 function get_repo_output() {
+  # get the name of wget output of repository
   name=$1
   output="${repos_outputs[$name]}"
   [[ -z "$output" ]] && output=$(basename "${repos_urls["$name"]}")
   echo "$output"
 }
 
+function check_repo_install() {
+  # check if a repo can be installed under a target directory
+  # $1: installation target (a directory)
+  # $2: name of the directory to install under the target
+  # $3: name of the repo
+  #
+  # returns:
+  #   0: can be installed
+  #   1: should not install. Cases are:
+  #      a. target not exist
+  #      b. source file not found
+  #      c. the directory already found under target
+  #
+  [[ ! -d "$1" ]] && { echo "Target $1 does not exist"; return 1; }
+  [[ -d "$2" ]] && { echo "$2 already installed under $1. Remove to install"; return 1; }
+  name="$3"
+  output=$(get_repo_output "$name")
+  if [[ ! -e "$REPOS_DIR/$output" ]]; then
+    echo -n "Source file of $output is not found under $REPOS_DIR."
+    echo -n " Try to download it? [y/N] "
+    read -r answer
+    if [[ $answer == "y" ]] || [[ $answer == "Y" ]]; then
+      url="${repos_urls[$name]}"
+      output="${repos_outputs[$name]}"
+      if [[ -z "$url" ]]; then
+        echo "Warning: URL on external repo $name not set"
+        return 1
+      fi
+      wget_repo "$REPOS_DIR" "$name" "$url" "$output"
+    else
+      return 1
+    fi
+  fi
+}
+
 function _zotero() {
   # Zotero for bibliography
   target="$1"
-  output=$(get_repo_output "Zotero")
-  [[ ! -d "$target" ]] && return 1
-  [[ ! -f "$REPOS_DIR/$output" ]] && return 1
+  dir="Zotero_linux-x86_64"
+  name="Zotero"
+  if (check_repo_install "$target" "$dir" "$name") then
+    output=$(get_repo_output "$name")
+  else
+    return 1
+  fi
   cwd=$(pwd)
   cd "$REPOS_DIR" || exit 1
-  bunzip2 -kq "$output"
-  tar -xf zotero.tar
-  mv Zotero_linux-x86_64 "$target/"
-  cd "$target/Zotero_linux-x86_64" || exit 1
+  tar -jxf "$output"
+  mv "$dir" "$target/"
+  cd "$target/$dir" || exit 1
   ./set_launcher_icon
   mkdir -p ~/.local/share/applications
   rm -f ~/.local/share/applications/zotero.desktop
   ln -s "$(realpath zotero.desktop)" ~/.local/share/applications/zotero.desktop
   cd "$cwd" || exit 0
   # set bashrc
-  echo "export PATH=\"$target/Zotero_linux-x86_64:\$PATH\"" >> ~/.bashrc
+  cat >> ~/.bashrc << EOF
+# === $name added by install_tmcstu ===
+export PATH="$target/$dir:\$PATH"
+# === end $name ===
+
+EOF
 }
 
 function _vesta() {
   # VESTA, require GTK3
   target="$1"
-  output=$(get_repo_output "VESTA")
-  [[ ! -d "$target" ]] && return 1
-  [[ ! -f "$REPOS_DIR/$output" ]] && return 1
-  sudo dnf -y install gtk3 gtk3-devel
+  name="VESTA"
+  dir="VESTA-gtk3"
+  if (check_repo_install "$target" "$dir" "$name"); then
+    output=$(get_repo_output "$name")
+  else
+    return 1
+  fi
   cd "$REPOS_DIR" || exit 1
-  bunzip2 -kq "$output"
-  tar -xf VESTA-gtk3.tar
-  [[ -d "$target/VESTA-gtk3" ]] && return 0
-  mv VESTA-gtk3 "$target/"
+  tar -jxf "$output"
+  mv "$dir" "$target/"
   cd ..
+  sudo dnf -y install gtk3 gtk3-devel
   # set bashrc
-  echo "export PATH=\"$target/VESTA-gtk3:\$PATH\"" >> ~/.bashrc
+  cat >> ~/.bashrc << EOF
+# === $name set by install_tmcstu ===
+export PATH="$target/$dir:\$PATH"
+# === end $name ===
+
+EOF
 }
 
 function _xcrysden() {
   # Xcrysden
   target="$1"
-  output=$(get_repo_output "XCrySDen")
-  [[ ! -d "$target" ]] && return 1
-  [[ ! -f "$REPOS_DIR/$output" ]] && return 1
+  name="XCrySDen"
+  dir="xcrysden-1.6.2"
+  if (check_repo_install "$target" "$dir" "$name"); then
+    output=$(get_repo_output "$name")
+  else
+    return 1
+  fi
   cwd=$(pwd)
+  cd "$REPOS_DIR" || exit 1
+  tar -zxf "$output"
+  mv xcrysden-1.6.2-bin-shared "$dir"
+  mv "$dir" "$target/"
+  cd "$target/" || exit 1
   # install requirements
   sudo dnf -y install tk tk-devel tcl tcl-devel tcl-togl tcl-togl-devel openbabel openbabel-devel \
     fftw-libs libXmu libXmu-devel libX11-devel mesa-libGLU mesa-libGLU-devel ImageMagick
-  cd "$REPOS_DIR" || exit 1
-  tar -zxf "$output"
-  [[ ! -d "$target/xcrysden-1.6.2" ]] && mv xcrysden-1.6.2-bin-shared "$target/xcrysden-1.6.2"
-  cd "$target/xcrysden-1.6.2" || exit 1
   # one needs to download 64-bit Togl 2.0 to make it work on Fedora > 30
   FEDORA_VERSION=$(get_fedora_ver)
   if (( FEDORA_VERSION >= 30 )); then
@@ -132,16 +196,46 @@ function _xcrysden() {
       sudo cp -n Togl2.0-8.4-Linux/lib/Togl2.0/libTogl2.0.so /usr/lib64/libTogl.so.2
     fi
   fi
-  cd "$cwd" || exit 0
+  cd "$cwd" || exit 1
   # set bashrc
-  echo "export PATH=\"$target/xcrysden-1.6.2:\$PATH\"" >> ~/.bashrc
+  cat >> ~/.bashrc << EOF
+# === Xcrysden set by install_tmcstu ===
+export PATH="$target/xcrysden-1.6.2:\$PATH"
+# === end Xcrysden ===
+
+EOF
+}
+
+function _cp2k_710_intel() {
+  echo "Not Implemented!" && return 1
+  target="$1"
+  name="cp2k-7.1.0"
+  dir="$name"
+  if (check_repo_install "$target" "$dir" "$name"); then
+    output=$(get_repo_output "$name")
+  else
+    return 1
+  fi
+  cwd=$(pwd)
+  cd "$REPOS_DIR" || exit 1
+  tar -zxf "$output" && mv "$name" "$target/"
+  cd "$target/$dir" || exit 1
+  cd "$cwd" || exit 1
+#  # set bashrc
+#  cat >> ~/.bashrc << EOF
+## === CP2k 7.1.0 set by install_tmcstu ===
+#export PATH="$target/$name:\$PATH"
+## === end CP2k 7.1.0 ===
+#
+#EOF
 }
 
 function _install_repo_rpm() {
   # install a RPM package for external repo
-  # $1: the filename of RPM
+  # $1: the name of repo
   name="$1"
   output=$(get_repo_output "$name")
   [[ ! -f "$REPOS_DIR/$output" ]] && return 1
   sudo rpm -i "$REPOS_DIR/$output"
 }
+

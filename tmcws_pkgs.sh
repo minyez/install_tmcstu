@@ -2,6 +2,9 @@
 # This file included th names and URLs of packages/files
 # on TMCWS for retrieving and installation
 
+# directory to store retrieved packages. No need to change, basically
+PKGS_DIR="pkgs"
+
 # TMCWS ssh connection, for retriving packages from TMC workstation
 # adapt to your own case before ./install_tmcstu.sh pkg
 TMCWS_CONNECTION="username@xxx.xx.xxx.xx"
@@ -70,8 +73,36 @@ pkgs_outputs=(
 
 declare -A pkgs_installers
 pkgs_installers=(
+  ["g09e1"]="_g09"
 )
 
-# directory to store retrieved packages. No need to change, basically
-PKGS_DIR="pkgs"
+function get_pkg_output() {
+  name=$1
+  output="${pkgs_outputs[$name]}"
+  [[ -z "$output" ]] && output=$(basename "${pkgs_urls["$name"]}")
+  echo "$output"
+}
 
+function _g09() {
+  #Gaussian09 installer
+  target="$1"
+  output=$(get_pkg_output "g09e1")
+  [[ ! -d "$target" ]] && return 1
+  [[ ! -d "$REPOS_DIR/$output" ]] && return 1
+  # change other user permission to make G09 work
+  chmod -R o-xr "$REPOS_DIR/$output"
+  mv "$REPOS_DIR/$output" "$target/"
+  # write to bashrc
+  # Note!!!: GV not included at present
+  cat >> ~/.bashrc << EOF
+# === Gaussian09 set by install_tmcstu ===
+export G09ROOT="$target/$output"
+export G09BASIS="\$G09ROOT/basis"
+export GAUSS_EXEDIR="\$G09ROOT/bsd:\$G09ROOT/local:\$G09ROOT/extras:\$G09ROOT"
+export GAUSS_SCRDIR="."
+export PATH="\$GAUSS_EXEDIR:\$PATH"
+export LD_LIBRARY_PATH="\$GAUSS_EXEDIR:\$LD_LIBRARY_PATH"
+# === end Gaussian09 ===
+
+EOF
+}

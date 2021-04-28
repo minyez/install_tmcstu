@@ -24,9 +24,10 @@ function help() {
   echo "  3. more science code: pyscf, Wannier90, QE, abinit, deepmd, lammps"
   echo "  4. config scripts, patches, makefile, modulefiles, etc"
   echo ""
-  echo "Update: 2021-04-26"
+  echo "Update: 2021-04-28"
   echo ""
   echo "Contributors: MY Zhang"
+  echo ""
 }
 
 FEDORA_VERSION=$(get_fedora_ver)
@@ -46,7 +47,7 @@ function install_config_tools() {
                 vim-enhanced neovim \
                 jq \
                 ripgrep fd-find \
-                lshw
+                lshw htop
 }
 
 function install_network_tools() {

@@ -11,18 +11,29 @@ function help() {
   echo "        into target directory: $prefix"
   echo ""
   echo "Usage:"
-  echo "  $1 list : list all packages that can be installed"
-  echo "  $1 all  : install all packages with installer available (see list)"
+  echo "  $1 list : list packages that can be installed"
+  echo "  $1 all  : install all basic packages"
   echo "  $1 [repo/pkg name]: install particular repo or package"
   echo ""
-  echo "Update: 2021-04-26"
+  echo "Update: 2021-04-28"
   echo ""
   echo "Contributors: MY Zhang"
+  echo ""
 }
 
 function _install_all() {
-  # install repos 
-  for name in "${repos_names[@]}"; do
+  # install repos
+  # only install the packages
+  # that require no compiler setup
+  all=("VESTA" "Zotero" "XCrySDen" "JabRef" "Chrome")
+  echo "Will try to install: ${all[*]}"
+  echo -n "Continue? [y/N] "
+  read -r answer
+  if [[ "$answer" != "y" ]] && [[ "$answer" != "Y" ]]; then
+    echo "Goodbye :)"
+    return
+  fi
+  for name in "${all[@]}"; do
     _install_one "$name"
   done
 }
@@ -32,11 +43,12 @@ function _install_one() {
   mkdir -p "$prefix"
   #cd "$prefix" || exit 1
   name="$1"
-  installer="${repos_installers[$name]}"
-  if [[ -n "$installer" ]]; then
-    "$installer" "$prefix"
-  else
+  if [[ -n "${repos_installers[$name]}" ]]; then
+    ${repos_installers[$name]} "$prefix"
+  elif [[ -n "${pkgs_installers[$name]}" ]]; then
     #echo "Installer for $name is not available"
+    ${pkgs_installers[$name]} "$prefix"
+  else
     return 1
   fi
   #cd "$cwd" || exit 0
@@ -58,6 +70,7 @@ function _list_all() {
       echo " - $name"
     fi
   done
+  echo ""
 }
 
 function main() {
