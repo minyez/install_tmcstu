@@ -10,7 +10,7 @@ function help() {
   echo "  [ init   ] : minimal install from Fedora repository"
   echo "  [ cuda   ] : install necessary components to enable CUDA programming"
   echo "  [ vc     ] : verify cuda installation"
-  echo "  [ pkg    ] : retrieve packages on TMCWS"
+  echo "  [ pkg    ] : retrieve packages from remote server"
   echo "  [ repo   ] : download external repositories"
   echo "  [ docker ] : install Docker engine"
   echo ""
@@ -160,7 +160,7 @@ function main() {
       "cuda"   ) install_cuda;;
       "vc"     ) verify_cuda;;
       "repo"   ) bash _download_extern_repos.sh 1 ;;
-      "pkg"    ) bash _retrieve_tmcws_pkgs.sh 1 ;;
+      "pkg"    ) bash _retrieve_remote_pkgs.sh 1 ;;
       "docker" ) install_docker ;;
 #      "-p" ) install_pyenv ;;
       * ) echo "Error: unknown command/option " "${opts[0]}"; \

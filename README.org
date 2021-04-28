@@ -72,7 +72,7 @@ chmod +x install_tmcstu.sh
 - 可公开获取的开源免费程序: 用 =wget= 从网络上直接抓取.
   这些程序记录在了 =extern_repos.sh= 的 =repos_names= 数组中.
 - 商业程序等较难获取的程序: 已在 TMC 工作站上存档, 用 SSH 从工作站上获取.
-  这些程序记录在 =tmcws_pkgs.sh= 的 =pkgs_names= 数组中.
+  这些程序记录在 =remote_pkgs.sh= 的 =pkgs_names= 数组中.
 
 通过
 #+begin_src shell

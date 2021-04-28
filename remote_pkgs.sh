@@ -1,24 +1,24 @@
 #!/usr/bin/env bash
 # This file included th names and URLs of packages/files
-# on TMCWS for retrieving and installation
+# on remote server for retrieving and installation
 
 # directory to store retrieved packages. No need to change, basically
 PKGS_DIR="pkgs"
 
-# TMCWS ssh connection, for retriving packages from TMC workstation
+# SSH connection, for retriving packages from TMC workstation
 # adapt to your own case before ./install_tmcstu.sh pkg
-TMCWS_CONNECTION="username@xxx.xx.xxx.xx"
+SSH_CONNECTION="username@xxx.xx.xxx.xx"
 #
 # Note!!!
 #   1. You should first make the SSH password-free
 #   2. To add port, you can adjust as below
-#      TMCWS_CONNECTION="-p 2022 username@xxx.xx.xxx.xx"
+#      SSH_CONNECTION="-p 2022 username@xxx.xx.xxx.xx"
 
 # options for rsync command
 # note:
-#  1. you must first ensure that connecting to tmcws is password-free. This will be checked by ssh_connection_check
+#  1. you must first ensure that connecting to remote server is password-free. This will be checked by ssh_connection_check
 #  2. info=progress2 to give a summary of current speed and progress. For old version rsync, one should use --progress instead
-#  3. Caveat: may break if TMCWS is behind some route such that a port number may be required
+#  3. Caveat: may break if the remote server is behind some route such that a port number may be required
 #     A workaround: add `-p port ` option in rsync or before the account
 rsync_opts="--exclude=*.o --exclude=*.mod  --exclude=*.out  --exclude=*.pyc --exclude=vasp --exclude=vasp_* -azru --info=progress2 "
 # 
@@ -40,7 +40,7 @@ pkgs_names=(
   # VMD
   "vmd-1.9.4a51"
   # direct download from VMD website is tricky due to a request of filling a form
-  # we retrieve it from the TMCWS
+  # we retrieve it from the remote server
   # placeholders
   "qe-6.6"
 )
@@ -79,19 +79,58 @@ pkgs_installers=(
 function get_pkg_output() {
   name=$1
   output="${pkgs_outputs[$name]}"
-  [[ -z "$output" ]] && output=$(basename "${pkgs_urls["$name"]}")
+  [[ -z "$output" ]] && output="$name"
   echo "$output"
+}
+
+function check_pkg_install() {
+  # check if a package can be installed under a target directory
+  # $1: installation target (a directory)
+  # $2: name of the directory to install under the target
+  # $3: name of the package
+  #
+  # returns:
+  #   0: can be installed
+  #   1: should not install. Cases are:
+  #      a. target not exist
+  #      b. source file not found
+  #      c. the directory already found under target
+  #
+  [[ ! -d "$1" ]] && { echo "Target $1 does not exist"; return 1; }
+  [[ -e "$1/$2" ]] && { echo "$2 already moved to $1. Remove to reinstall"; return 1; }
+  name="$3"
+  output=$(get_pkg_output "$name")
+  if [[ ! -e "$PKGS_DIR/$output" ]]; then
+    echo -n "Source file of $output is not found under $PKGS_DIR."
+    echo -n " Try to retrieve it? [y/N] "
+    read -r answer
+    if [[ $answer == "y" ]] || [[ $answer == "Y" ]]; then
+      url="${pkgs_urls[$name]}"
+      if [[ -z "$url" ]]; then
+        echo "Warning: URL on remote pkg $name not set"
+        return 1
+      fi
+      rsync_pkg 1 "$rsync_opts" "$SSH_CONNECTION" \
+        "$name" "$url" "$PKGS_DIR/$output"
+    else
+      return 1
+    fi
+  fi
 }
 
 function _g09() {
   #Gaussian09 installer
   target="$1"
-  output=$(get_pkg_output "g09e1")
-  [[ ! -d "$target" ]] && return 1
-  [[ ! -d "$REPOS_DIR/$output" ]] && return 1
+  name="g09e1"
+  dir="$name"
+  if (check_pkg_install "$target" "$dir" "$name"); then
+    output=$(get_pkg_output "$name")
+  else
+    return 1
+  fi
   # change other user permission to make G09 work
-  chmod -R o-xr "$REPOS_DIR/$output"
-  mv "$REPOS_DIR/$output" "$target/"
+  chmod -R o-xr "$PKGS_DIR/$output"
+  cp -r "$PKGS_DIR/$output" "$target/$dir"
   # write to bashrc
   # Note!!!: GV not included at present
   cat >> ~/.bashrc << EOF

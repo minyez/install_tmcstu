@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 source _common.sh
-source tmcws_pkgs.sh
+source remote_pkgs.sh
 
 function help() {
-  echo "Retrieve packages from TMC workstation"
+  echo "Retrieve packages from remote server"
   echo ""
-  echo "To add a new target, you only have to add the following to arrays in tmcws_pkgs.sh"
+  echo "To add a new target, you only have to add the following to arrays in remote_pkgs.sh"
   echo ""
   echo "  1. package name as an identifier \`pkgs_names\`"
   echo "  2. path to the package on the TMC workstation \`pkgs_urls\`"
@@ -16,24 +16,21 @@ function help() {
   echo "Note that GitHub extracting may fail due to network problem"
 }
 
-function retrieve_tmcws_pkgs() {
+function retrieve_remote_pkgs() {
   # retrieve packages from tmc workstation
-  if (ssh_connection_check "${TMCWS_CONNECTION}"); then
+  if (ssh_connection_check "${SSH_CONNECTION}"); then
     for name in "${pkgs_names[@]}"; do
       url="${pkgs_urls[$name]}"
-      output=${pkgs_outputs[$name]}
-      if [[ -z "$output" ]]; then
-        output="$name"
-      fi
+      output=$(get_pkg_output "$name")
       if [[ -z "$url" ]]; then
         echo "Warning: URL of $name not set, skip"
         continue
       fi
-      rsync_pkg 0 "$PKGS_DIR" "$rsync_opts" "$TMCWS_CONNECTION" \
-        "$name" "$url" "$output"
+      rsync_pkg 0 "$rsync_opts" "$SSH_CONNECTION" \
+        "$name" "$url" "$PKGS_DIR/$output"
     done
   else
-    echo "Error: fail to connect to TMCWS under ${TMCWS_CONNECTION}. Please check IP and SSH setup."
+    echo "Error: fail to connect to remote under ${SSH_CONNECTION}. Please check IP and SSH setup."
   fi
 }
 
@@ -42,5 +39,5 @@ if (( $# == 0 )); then
   exit 0
 fi
 
-retrieve_tmcws_pkgs
+retrieve_remote_pkgs
 

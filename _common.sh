@@ -75,15 +75,14 @@ function wget_repo() {
 function rsync_pkg() {
   # $1: whether to check conncetion, 0 for not check, otherwise check
   # $2: sync command
-  # $3: pkgs directory
-  # $4: connection
-  # $5: name
-  # $6: source
-  # $7: output/destination
+  # $3: connection
+  # $4: name
+  # $5: source
+  # $6: output/destination
   case $# in
-    7 ) if_check_ssh=$1; pkgs_dir=$2;
-        rsync_opts=$3; connection=$4;
-        name=$5; src=$6; dest=$7 ;;
+    6 ) if_check_ssh=$1;
+        rsync_opts=$2; connection=$3;
+        name=$4; src=$5; dest=$6 ;;
     * ) echo "Error! must specify repo directory, name and url"; exit 2;;
   esac
 
@@ -91,19 +90,19 @@ function rsync_pkg() {
     ssh_connection_check "$connection"
   fi
   cwd="$(pwd)"
-  mkdir -p "$pkgs_dir"
-  cd "$pkgs_dir" || exit 0
+  mkdir -p "$(dirname "$dest")"
   echo "==rsync==: try syncing $name with:"
   echo "    rsync $rsync_opts ${connection}:${src} ${dest}"
-  if [[ -f "$dest" ]] || [[ -d "$dest" ]]; then
+  if [[ -e "$dest" ]]; then
     echo "Warning: file/directory $name already synced, will skip"
     return 0
   fi
-  if (rsync "$rsync_opts" "$connection:$src" "$dest"); then
+  # shellcheck disable=SC2086
+  if (rsync $rsync_opts "$connection:$src" "$dest"); then
     echo "Success: $name synced"
   else
     echo "Error: $name not synced completely"
+    return 1
   fi
-  cd "$cwd" || exit 0
 }
 

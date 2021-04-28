@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 source _common.sh
 source extern_repos.sh
-source tmcws_pkgs.sh
+source remote_pkgs.sh
 
 # location to install; usually no need to change
 prefix="$HOME/local/programs"

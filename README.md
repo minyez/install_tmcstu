@@ -66,7 +66,7 @@ to see available installers.
 
 Note that you have to need to install by yourself if the pacakge has no available installer.
 In this case, it would be great if you can help to implement the installer
-in `extern_repos.sh` or `tmcws_pkgs.sh`.
+in `extern_repos.sh` or `remote_pkgs.sh`.
 
 ## Customization
 
@@ -76,6 +76,6 @@ See `custom.sh`
 
 One may need to extend the list of online repositories to be downloaded,
 or retrieve more packages from the TMC workstation.
-To these ends, they can modify arrays in `extern_repos.sh` and `tmcws_pkgs.sh`, respectively.
+To these ends, they can modify arrays in `extern_repos.sh` and `remote_pkgs.sh`, respectively.
 See either file for more guidance.
 

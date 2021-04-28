@@ -83,7 +83,7 @@ function check_repo_install() {
   # check if a repo can be installed under a target directory
   # $1: installation target (a directory)
   # $2: name of the directory to install under the target
-  # $3: name of the repo
+  # $3: name of the repository
   #
   # returns:
   #   0: can be installed
