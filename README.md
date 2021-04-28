@@ -1,4 +1,4 @@
-# `install_tmcstu`
+# install\_tmcstu
 
 [中文说明](README.org)
 

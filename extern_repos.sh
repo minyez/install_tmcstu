@@ -93,7 +93,7 @@ function check_repo_install() {
   #      c. the directory already found under target
   #
   [[ ! -d "$1" ]] && { echo "Target $1 does not exist"; return 1; }
-  [[ -d "$2" ]] && { echo "$2 already installed under $1. Remove to install"; return 1; }
+  [[ -e "$1/$2" ]] && { echo "$2 already installed under $1. Remove to reinstall"; return 1; }
   name="$3"
   output=$(get_repo_output "$name")
   if [[ ! -e "$REPOS_DIR/$output" ]]; then
