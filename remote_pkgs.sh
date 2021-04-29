@@ -75,6 +75,7 @@ declare -A pkgs_installers
 pkgs_installers=(
   ["g09e1"]="_g09"
   ["vasp-5.4.4"]="_vasp_544_intel"
+  ["intel_xe_2020_update4"]="_intel_xe_20_u4"
 )
 
 function get_pkg_output() {
@@ -179,4 +180,26 @@ export PATH="$target/$dir/bin:\$PATH"
 
 EOF
   cd "$cwd" || return 1
+}
+
+function _intel_xe_20_u4() {
+  target=$1
+  name="intel_xe_2020_update4"
+  dir="$name"
+  if (check_pkg_install "$target" "$dir" "$name"); then
+    output=$(get_pkg_output "$name")
+    cwd=$(pwd)
+    cd "$PKGS_DIR" || return 1
+    tar -zxf "$output" && mv parallel_studio_xe_2020_update4_cluster_edition "$name" || return 1
+    echo "You have to install Intel 2020u4 yourself by"
+    echo "  cd $cwd/$PKGS_DIR/$name && chmod +x install.sh && ./install.sh"
+    echo ""
+    echo "Note:"
+    echo "    you may use License in $cwd/$PKGS_DIR/intel_licenses :"
+    echo "      $(ls "$cwd/$PKGS_DIR/intel_licenses")"
+    cd "$cwd" || return 1
+  else
+    [[ -d "$target/$dir" ]] && return 0
+    return 1
+  fi
 }
