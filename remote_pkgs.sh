@@ -8,6 +8,7 @@ PKGS_DIR="pkgs"
 # SSH connection, for retriving packages from TMC workstation
 # adapt to your own case before ./install_tmcstu.sh pkg
 SSH_CONNECTION="username@xxx.xx.xxx.xx"
+SSH_CONNECTION="ws"
 #
 # Note!!!
 #   1. You should first make the SSH password-free
@@ -76,6 +77,7 @@ pkgs_installers=(
   ["g09e1"]="_g09"
   ["vasp-5.4.4"]="_vasp_544_intel"
   ["intel_xe_2020_update4"]="_intel_xe_20_u4"
+  ["intel_licenses"]="_intel_licenses"
 )
 
 function get_pkg_output() {
@@ -182,6 +184,20 @@ EOF
   cd "$cwd" || return 1
 }
 
+function _intel_licenses() {
+  #function_body
+  target=$1
+  name="intel_licenses"
+  dir="$name"
+  if (check_pkg_install "$target" "$dir" "$name"); then
+    output=$(get_pkg_output "$name")
+    cp -a "$PKGS_DIR/$output" "$target/$dir"
+  else
+    [[ -d "$target/$dir" ]] && return 0
+    return 1
+  fi
+}
+
 function _intel_xe_20_u4() {
   target=$1
   name="intel_xe_2020_update4"
@@ -189,17 +205,22 @@ function _intel_xe_20_u4() {
   if (check_pkg_install "$target" "$dir" "$name"); then
     output=$(get_pkg_output "$name")
     cwd=$(pwd)
-    cd "$PKGS_DIR" || return 1
-    tar -zxf "$output" && mv parallel_studio_xe_2020_update4_cluster_edition "$name" || return 1
-    echo "You have to install Intel 2020u4 yourself by"
-    echo "  cd $cwd/$PKGS_DIR/$name && chmod +x install.sh && ./install.sh"
-    echo ""
-    echo "Note:"
-    echo "    you may use License in $cwd/$PKGS_DIR/intel_licenses :"
-    echo "      $(ls "$cwd/$PKGS_DIR/intel_licenses")"
-    cd "$cwd" || return 1
+    if [[ ! -d "$PKGS_DIR/$name" ]]; then
+      tar -C "$PKGS_DIR" -zxf "$PKGS_DIR/$output" && mv "$PKGS_DIR/parallel_studio_xe_2020_update4_cluster_edition" "$PKGS_DIR/$name"
+    fi
   else
     [[ -d "$target/$dir" ]] && return 0
     return 1
   fi
+  echo "You now have all you need to install Intel 2020u4 in $cwd/$PKGS_DIR/$name"
+  echo ""
+  echo "Unfortunately, you have to install by yourself, by"
+  echo "  cd $cwd/$PKGS_DIR/$name && chmod +x install.sh && ./install.sh"
+  echo ""
+  echo "Note:"
+  echo "    1. it would be consistent to install under $target/$dir"
+  echo "    2. you may need License to proceed. You can get your own from Intel site, or"
+  echo "       obtain from server by ./install_repos_pkgs.sh intel_licenses and find them at $target/intel_licenses"
+  echo ""
+  cd "$cwd" || return 1
 }

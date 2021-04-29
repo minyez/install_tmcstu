@@ -15,7 +15,7 @@ function help() {
   echo "  $1 all  : install all basic packages"
   echo "  $1 [repo/pkg name]: install particular repo or package"
   echo ""
-  echo "Update: 2021-04-28"
+  echo "Update: 2021-04-29"
   echo ""
   echo "Contributors: MY Zhang"
   echo ""

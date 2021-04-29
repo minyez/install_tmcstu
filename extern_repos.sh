@@ -364,6 +364,13 @@ function _cp2k_71_intel() {
   -i_orig arch/$arch.$version
   if (make -j"$MAKE_NPROCS" ARCH=$arch VERSION=$version); then
     echo -e "Done make. You may want to test:\n  cd $target/$dir && make ARCH=$arch VERSION=$version numprocs=4 test"
+    # regtest by MYZ, 210429, intel 2018.1
+    # Number of FAILED  tests 0
+    # Number of WRONG   tests 0
+    # Number of CORRECT tests 3207
+    # Number of NEW     tests 3
+    # Total number of   tests 3210
+    # GREPME 0 0 3207 3 3210 X
   else
     cd "$cwd" && return 1
   fi

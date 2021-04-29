@@ -24,7 +24,7 @@ function help() {
   echo "  3. more science code: pyscf, Wannier90, QE, abinit, deepmd, lammps"
   echo "  4. config scripts, patches, makefile, modulefiles, etc"
   echo ""
-  echo "Update: 2021-04-28"
+  echo "Update: 2021-04-29"
   echo ""
   echo "Contributors: MY Zhang"
   echo ""
@@ -98,7 +98,7 @@ function init_fedora() {
   sudo bash _renew_repo_sources.sh "$REPO_SOURCES"
   sudo dnf -y update
   sudo dnf -y upgrade
-  
+
   install_network_tools
   install_config_tools
   install_sci_tools
@@ -107,7 +107,7 @@ function init_fedora() {
   if [[ ! -d ~/local/modulefiles ]]; then
     cp -r modulefiles ~/local/
   fi
-  
+
 }
 
 function install_cuda() {
