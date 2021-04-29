@@ -22,7 +22,7 @@
 | GPU  | NVIDIA Quadro P620 (128 \times 4 CUDA cores, 2GB Mem)       |
 
 * 软件
-** Commands for the impatient
+** 快速上手
 
 没有耐心细读下面内容的同学, 如果你是第一次使用这台机器, 请在联网后输入以下命令:
 
@@ -59,7 +59,7 @@ chmod +x install_tmcstu.sh
 具体内容可以阅读该脚本.
 
 
-** 科研工具
+** 常用科研工具
 脚本 =install_repos_pkgs.sh= 实现了部分与课题组有关的科研工具 (例如可视化工具, 编译器, 第一性原理计算软件)
 的安装.
 
@@ -108,10 +108,10 @@ chmod +x install_tmcstu.sh
 #+end_src
 即可安装最基本的几个程序.
 
-目前, 自动安装的程序都会置于 =~/local/programs/= 下, 或通过 rpm 安装到根目录中.
+目前, 自动安装的程序都会置于 =~/local/programs= 下, 或通过 rpm 安装到根目录中.
 建议在手动安装的程序时也遵循这一设置.
 
-** CUDA toolkit
+** 安装 CUDA toolkit
 如需安装 CUDA toolkit, 输入
 #+begin_src shell
 ./install_tmcstu.sh cuda
@@ -122,7 +122,7 @@ chmod +x install_tmcstu.sh
 #+end_src
 对 CUDA toolkit 安装进行验证.
 
-** Docker 引擎
+** 安装 Docker 引擎
 同样可以通过 =install_tmcstu.sh= 安装, 只需运行
 #+begin_src shell
 ./install_tmcstu.sh docker
@@ -158,6 +158,14 @@ chmod +x install_tmcstu.sh
 ** 开机后按 F10 无法进入 BIOS
 这与 BIOS 设置有关. 按 F10 后若听到 "嘟" 的一声, 那么实际上已经进入 BIOS 了, 只是显示器没有能够显示 BIOS 界面.
 为此需要保证 VGA Boot Options 的值与所接显卡一致. 在 BIOS 中修改该选项值的办法可参考 "启用 CUDA 独显"一节.
+** 安装后无法 which 到可执行程序
+一般来说, 你需要刷新 shell, 例如打开一个新的终端, 或者在原来终端下 =source ~/.bashrc=.
+
+若在刷新 shell 后仍无法 which 到, 那么很有可能是安装器作者没有编写对应的 bashrc 修改.
+此时需要你对照 =~/local/programs= 下的程序手动添加, 或者通知安装器作者修改.
+** 为什么不使用 modulefile 来管理安装程序的环境变量
+作者精力有限, 暂时没有实现的动力 :( 读者可根据对应 bashrc 代码块, 参考[[https://modules.readthedocs.io/en/latest/modulefile.html][这一链接]]
+编写自己的 modulefile.
 
 * Changelog
 - 2021-04-12 草稿
