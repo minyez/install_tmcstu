@@ -40,33 +40,40 @@ For more detailed instruction, see information from
 ### `install_repos_pkgs.sh`
 
 This script is used to install tools from website (i.e. external repositories) and softwares obtained from the TMC workstation.
-Before installation, you should have the source at your disposal.
-The external repositories and workstation pacakges can be downloaded by
-
-```bash
-./install_tmcstu.sh repo
-./install_tmcstu.sh pkg
-```
-
-After this, you can find the source files in `repos` and `pkgs` directories.
-Then you can run
+You can run
 
 ```bash
 ./install_repos_pkgs.sh all
 ```
 
-to install the repositories and pacakges that have corresponding installers.
-Run
+to install the basic repositories and pacakges. Run
 
 ```bash
 ./install_repos_pkgs.sh list
 ```
 
-to see available installers.
+to see all available installers.
 
 Note that you have to need to install by yourself if the pacakge has no available installer.
 In this case, it would be great if you can help to implement the installer
 in `extern_repos.sh` or `remote_pkgs.sh`.
+
+Note that you may not have to the sources when you run the installer,
+because it will automatically detect and download from website or retrive from remote server
+if necessary. Alternatively,
+all the external repositories can be downloaded by
+
+```bash
+./install_tmcstu.sh repo
+```
+
+and remote pacakges can be retrieved by
+
+```bash
+./install_tmcstu.sh pkg
+```
+
+After this, you can find all source files in `repos` and `pkgs` directories.
 
 ## Customization
 

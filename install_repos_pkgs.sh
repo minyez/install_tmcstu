@@ -25,7 +25,7 @@ function _install_all() {
   # install repos
   # only install the packages
   # that require no compiler setup
-  all=("VESTA" "Zotero" "XCrySDen" "JabRef" "Chrome")
+  all=("VESTA" "Zotero" "XCrySDen" "JabRef")
   echo "Will try to install: ${all[*]}"
   echo -n "Continue? [y/N] "
   read -r answer
