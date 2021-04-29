@@ -21,7 +21,7 @@ SSH_CONNECTION="username@xxx.xx.xxx.xx"
 #  3. Caveat: may break if the remote server is behind some route such that a port number may be required
 #     A workaround: add `-p port ` option in rsync or before the account
 rsync_opts="--exclude=*.o --exclude=*.mod  --exclude=*.out  --exclude=*.pyc --exclude=vasp --exclude=vasp_* -azru --info=progress2 "
-# 
+#
 
 pkgs_names=(
   # VASP
@@ -74,6 +74,7 @@ pkgs_outputs=(
 declare -A pkgs_installers
 pkgs_installers=(
   ["g09e1"]="_g09"
+  ["vasp-5.4.4"]="_vasp_544_intel"
 )
 
 function get_pkg_output() {
@@ -126,6 +127,7 @@ function _g09() {
   if (check_pkg_install "$target" "$dir" "$name"); then
     output=$(get_pkg_output "$name")
   else
+    [[ -d "$target/$dir" ]] && return 0
     return 1
   fi
   # change other user permission to make G09 work
@@ -134,14 +136,47 @@ function _g09() {
   # write to bashrc
   # Note!!!: GV not included at present
   cat >> ~/.bashrc << EOF
-# === Gaussian09 set by install_tmcstu ===
+# === $name set by $PROJNAME ===
 export G09ROOT="$target/$output"
 export G09BASIS="\$G09ROOT/basis"
 export GAUSS_EXEDIR="\$G09ROOT/bsd:\$G09ROOT/local:\$G09ROOT/extras:\$G09ROOT"
 export GAUSS_SCRDIR="."
 export PATH="\$GAUSS_EXEDIR:\$PATH"
 export LD_LIBRARY_PATH="\$GAUSS_EXEDIR:\$LD_LIBRARY_PATH"
-# === end Gaussian09 ===
+# === end $name ===
 
 EOF
+}
+
+function _vasp_544_intel() {
+  target=$1
+  name="vasp-5.4.4"
+  dir="$name"
+  if (check_pkg_install "$target" "$dir" "$name"); then
+    output=$(get_pkg_output "$name")
+    cwd=$(pwd)
+  else
+    [[ -d "$target/$dir" ]] && return 0
+    return 1
+  fi
+  cp -r "$PKGS_DIR/$output" "$target/$dir" && cd "$target/$dir" || exit 1
+  if ({ make clean; make all; }); then
+    pass
+  else
+    echo "Something wrong in compiling VASP. Check error log above."
+    echo "When break at linking, it is very possible that "
+    echo "libfftw3xf_intel.a is missing. To resolve, try "
+    echo ""
+    echo "  cd $MKLROOT/interfaces/fftw3xf"
+    echo "  make libintel64"
+    echo "  cd $target/$dir && make all "
+    cd "$cwd" && return 1
+  fi
+  cat >> ~/.bashrc << EOF
+# === $name set by $PROJNAME ===
+export PATH="$target/$dir/bin:\$PATH"
+# === end $name ===
+
+EOF
+  cd "$cwd" || return 1
 }

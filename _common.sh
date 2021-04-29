@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC2034
+PROJNAME="install_tmcstu"
+
 function get_fedora_ver() {
   if [[ ! -f /etc/os-release ]]; then
     echo "Error! Not a Fedora release"

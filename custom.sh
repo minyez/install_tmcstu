@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2034
 
 # mainland mirror to replace the official Fedora repo
 # to make full use of EDU network
@@ -7,4 +8,4 @@
 #  THU:  mirror maintained by TUNA, Tsinghua University
 
 REPO_SOURCES="THU"
-
+MAKE_NPROCS=1

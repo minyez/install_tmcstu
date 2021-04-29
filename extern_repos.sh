@@ -20,14 +20,18 @@ repos_names=(
   "lapack-3.9.1"
   "scalapack-2.1.0"
   "fftw-3.3.9"
-  "libxc-4.3.4"
   "libxc-5.1.3"
   "v_sim"
   "atat3-44"
+  "cp2k-7.1-intel"
+  # dependencies for CP2k 7.1
+  "libxc-4.3.4-intel"
+  "libint-v2.6.0-cp2k-lmax-6-intel"
+  "elpa-2019.11.001-intel"
+  "libxsmm-1.15-intel"
   # placeholders for repos, without implemented URLs
   "hdf5"
   "netcdf"
-  "cp2k-7.1"
 )
 
 declare -A repos_urls
@@ -42,10 +46,16 @@ repos_urls=(
   ["scalapack-2.1.0"]="http://www.netlib.org/scalapack/scalapack-2.1.0.tgz"
   ["v_sim"]="https://gitlab.com/l_sim/v_sim/-/archive/3.8.0/v_sim-3.8.0.tar.gz"
   ["fftw-3.3.9"]="http://www.fftw.org/fftw-3.3.9.tar.gz"
-  ["libxc-4.3.4"]="http://www.tddft.org/programs/libxc/down.php?file=4.3.4/libxc-4.3.4.tar.gz"
   ["libxc-5.1.3"]="http://www.tddft.org/programs/libxc/down.php?file=5.1.3/libxc-5.1.3.tar.gz"
   ["atat3-44"]="http://alum.mit.edu/www/avdw/atat/atat3_44.tar.gz"
-  ["cp2k-7.1.0"]="https://github.com/cp2k/cp2k/archive/refs/tags/v7.1.0.tar.gz"
+  # do not use the tar.gz source code for CP2k
+  # otherwise will have "No DBCSR submodule available "
+  # according to https://www.gitmemory.com/issue/cp2k/cp2k/1302/759304465
+  ["cp2k-7.1-intel"]="https://github.com/cp2k/cp2k/releases/download/v7.1.0/cp2k-7.1.tar.bz2"
+  ["libxc-4.3.4-intel"]="http://www.tddft.org/programs/libxc/down.php?file=4.3.4/libxc-4.3.4.tar.gz"
+  ["elpa-2019.11.001-intel"]="https://elpa.mpcdf.mpg.de/software/tarball-archive/Releases/2019.11.001/elpa-2019.11.001.tar.gz"
+  ["libint-v2.6.0-cp2k-lmax-6-intel"]="https://github.com/cp2k/libint-cp2k/releases/download/v2.6.0/libint-v2.6.0-cp2k-lmax-6.tgz"
+  ["libxsmm-1.15-intel"]="https://www.cp2k.org/static/downloads/libxsmm-1.15.tar.gz"
 )
 
 # optional array to set the name of the downloaded file
@@ -54,7 +64,6 @@ declare -A repos_outputs
 repos_outputs=(
   ["Zotero"]="zotero.tar.bz2"
   ["lapack-3.9.1"]="lapack-3.9.1.tar.gz"
-  ["cp2k-7.1.0"]="cp2k-7.1.0.tar.gz"
 )
 
 declare -A repos_installers
@@ -64,7 +73,11 @@ repos_installers=(
   ["XCrySDen"]="_xcrysden"
   ["JabRef"]="_install_repo_rpm JabRef"
   ["Chrome"]="_install_repo_rpm Chrome"
-  ["cp2k-7.1.0"]="_cp2k_710_intel"
+  ["cp2k-7.1-intel"]="_cp2k_71_intel"
+  ["libxc-4.3.4-intel"]="_libxc_434_intel"
+  ["libint-v2.6.0-cp2k-lmax-6-intel"]="_libint_260_cp2k_lm6_intel"
+  ["libxsmm-1.15-intel"]="_libxsmm_115_intel"
+  ["elpa-2019.11.001-intel"]="_elpa_201911001_intel"
 )
 
 # write installers here
@@ -121,6 +134,7 @@ function _zotero() {
   name="Zotero"
   if (check_repo_install "$target" "$dir" "$name") then
     output=$(get_repo_output "$name")
+    [[ -d "$target/$dir" ]] && return 0
   else
     return 1
   fi
@@ -136,7 +150,7 @@ function _zotero() {
   cd "$cwd" || exit 0
   # set bashrc
   cat >> ~/.bashrc << EOF
-# === $name added by install_tmcstu ===
+# === $name added by $PROJNAME ===
 export PATH="$target/$dir:\$PATH"
 # === end $name ===
 
@@ -151,6 +165,7 @@ function _vesta() {
   if (check_repo_install "$target" "$dir" "$name"); then
     output=$(get_repo_output "$name")
   else
+    [[ -d "$target/$dir" ]] && return 0
     return 1
   fi
   cd "$REPOS_DIR" || exit 1
@@ -160,7 +175,7 @@ function _vesta() {
   sudo dnf -y install gtk3 gtk3-devel
   # set bashrc
   cat >> ~/.bashrc << EOF
-# === $name set by install_tmcstu ===
+# === $name set by $PROJNAME ===
 export PATH="$target/$dir:\$PATH"
 # === end $name ===
 
@@ -175,6 +190,7 @@ function _xcrysden() {
   if (check_repo_install "$target" "$dir" "$name"); then
     output=$(get_repo_output "$name")
   else
+    [[ -d "$target/$dir" ]] && return 0
     return 1
   fi
   cwd=$(pwd)
@@ -199,33 +215,164 @@ function _xcrysden() {
   cd "$cwd" || exit 1
   # set bashrc
   cat >> ~/.bashrc << EOF
-# === Xcrysden set by install_tmcstu ===
+# === Xcrysden set by $PROJNAME ===
 export PATH="$target/xcrysden-1.6.2:\$PATH"
 # === end Xcrysden ===
 
 EOF
 }
 
-function _cp2k_710_intel() {
-  echo "Not Implemented!" && return 1
+function _libxsmm_115_intel() {
   target="$1"
-  name="cp2k-7.1.0"
+  name="libxsmm-1.15-intel"
   dir="$name"
   if (check_repo_install "$target" "$dir" "$name"); then
     output=$(get_repo_output "$name")
+    cwd=$(pwd)
   else
+    [[ -d "$target/$dir" ]] && return 0
     return 1
   fi
-  cwd=$(pwd)
   cd "$REPOS_DIR" || exit 1
-  tar -zxf "$output" && mv "$name" "$target/"
-  cd "$target/$dir" || exit 1
+  tar -zxf libxsmm-1.15.tar.gz && cd libxsmm-1.15 || exit 1
+  make CC=icc FC=ifort PREFIX="$target/$dir" install
+  # make test
+  # all tests passed, 210428
+  cd ..
+}
+
+function _libint_260_cp2k_lm6_intel() {
+  target="$1"
+  name="libint-v2.6.0-cp2k-lmax-6-intel"
+  dir="$name"
+  if (check_repo_install "$target" "$dir" "$name"); then
+    output=$(get_repo_output "$name")
+    cwd=$(pwd)
+  else
+    [[ -d "$target/$dir" ]] && return 0
+    return 1
+  fi
+  cd "$REPOS_DIR" || exit 1
+  tar -zxf "$output"
+  cd "libint-v2.6.0-cp2k-lmax-6" || exit 1
+  make clean && make distclean
+  ./configure CC=icc CXX=icpc FC=ifort --prefix="$target/$dir" --enable-fortran
+  # avoid install error by only compiling libint_f.F90 in fortran/
+  cd fortran && \
+    sed 's/default:: fortran_example check_test/default:: libint_f.o #fortran_example check_test/g' Makefile \
+    -i_bak && cd ..
+  make -j"${MAKE_NPROCS}"
+  # correct the makefile to let Fortran module install work
+  make install
   cd "$cwd" || exit 1
+}
+
+function _elpa_201911001_intel() {
+  target="$1"
+  name="elpa-2019.11.001-intel"
+  dir="$name"
+  if (check_repo_install "$target" "$dir" "$name"); then
+    output=$(get_repo_output "$name")
+    cwd=$(pwd)
+  else
+    [[ -d "$target/$dir" ]] && return 0
+    return 1
+  fi
+  cd "$REPOS_DIR" || exit 1
+  tar -zxf "$output"
+  cd elpa-2019.11.001 || exit 1
+  ### TODO issue: ifort: specifying -lm before files may supersede the Intel(R) math library and affect performance
+  libs=$(echo -L$MKLROOT/lib/intel64 -lmkl_{scalapack_lp64,intel_lp64,sequential,core,blacs_intelmpi_lp64} -lpthread -lm -ldl)
+  ./configure FC=mpiifort CC=mpiicc --prefix="$target/$dir" \
+    SCALAPACK_LDFLAGS="$libs -Wl,-rpath,$MKLROOT/lib/intel64" \
+    SCALAPACK_FCFLAGS="$libs -I$MKLROOT/include"
+  make -j"${MAKE_NPROCS}" && make install
+  ### TODO make check: 2-stage almost all failed
+  ### # TOTAL: 104
+  ### # PASS:  28
+  ### # SKIP:  56
+  ### # XFAIL: 0
+  ### # FAIL:  20
+  ### # XPASS: 0
+  ### # ERROR: 0
+  ### 210429, stevezhang, intel 2018.1
+  cd "$cwd" || exit 1
+}
+
+function _libxc_434_intel() {
+  target="$1"
+  name="libxc-4.3.4-intel"
+  dir="$name"
+  if (check_repo_install "$target" "$dir" "$name"); then
+    output=$(get_repo_output "$name")
+    cwd=$(pwd)
+  else
+    [[ -d "$target/$dir" ]] && return 0
+    return 1
+  fi
+  cd "$REPOS_DIR" || return 1
+  tar -zxf "$output"
+  cd libxc-4.3.4 || return 1
+  make clean && ./configure FC=ifort CC=icc F77=ifort --prefix="$target/$dir"
+  make && make install
+  cd "$cwd" || return 1
+}
+
+function _cp2k_71_intel() {
+  target="$1"
+  name="cp2k-7.1-intel"
+  dir="$name"
+  if (check_repo_install "$target" "$dir" "$name"); then
+    output=$(get_repo_output "$name")
+    cwd=$(pwd)
+  else
+    [[ -d "$target/$dir" ]] && return 0
+    return 1
+  fi
+  ### check and install dependencies that maybe useful for programs other than cp2k
+  ### it would be better to install before hand
+  depends=("libxc-4.3.4-intel"
+           "libint-v2.6.0-cp2k-lmax-6-intel"
+           "elpa-2019.11.001-intel"
+           "libxsmm-1.15-intel")
+  echo "Will install dependencies: ${depends[*]}"
+  if ( { for d in "${depends[@]}"; do ${repos_installers[$d]} "$target"; done } ); then
+    cd "$REPOS_DIR" || exit 1
+    tar -jxf "$output"
+    cd "$cwd" || exit 1
+  else
+    echo "Fail to install all dependencies of CP2k (intel)"
+    return 1
+  fi
+  mv "$REPOS_DIR/cp2k-7.1" "$target/$dir"
+  cd "$target/$dir" || exit 1
+  arch=Linux-x86-64-intel
+  version=popt
+  # shellcheck disable=SC2016
+  [[ ! -f arch/$arch.${version}_orig ]] && sed -e\
+"s#LIBXC    = /home/users/p02464/libs/libxc/intel/4.0.3#LIBXC    = $target/libxc-4.3.4-intel#g" -e \
+"s#LIBINT   = /home/users/p02464/libs/libint/intel/1.1.6#LIBINT   = $target/libint-v2.6.0-cp2k-lmax-6-intel#g" -e \
+"s#LIBELPA  = /home/users/p02464/libs/libelpa/intel/2017.05.002#LIBELPA  = $target/elpa-2019.11.001-intel#g" -e \
+"s#LIBXSMM  = /home/users/p02464/libxsmm/1.8.3_skl_intel#LIBXSMM  = $target/libxsmm-1.15-intel#g" -e \
+'s#CC       = cc#CC       = icc#g' -e \
+'s/-D__ELPA=201705/-D__ELPA=201901/g' -e \
+'/$(LIBELPA)/a FCFLAGS += -I$(LIBINT)\/include' -e \
+'/LIBS     = -L$(LIBELPA)/a LIBS    += -Wl,-rpath,$(LIBELPA)/lib' -e \
+'s/elpa-2017.05.002/elpa-2019.11.001/g' -e \
+'s/-D__LIBINT_MAX_AM=7 -D__LIBDERIV_MAX_AM1=6//g' -e \
+'s/-lderiv -lint/-lint2/g' \
+  -i_orig arch/$arch.$version
+  if (make -j"$MAKE_NPROCS" ARCH=$arch VERSION=$version); then
+    echo -e "Done make. You may want to test:\n  cd $target/$dir && make ARCH=$arch VERSION=$version numprocs=4 test"
+  else
+    cd "$cwd" && return 1
+  fi
+  cd "$cwd" || return 1
 #  # set bashrc
 #  cat >> ~/.bashrc << EOF
-## === CP2k 7.1.0 set by install_tmcstu ===
-#export PATH="$target/$name:\$PATH"
-## === end CP2k 7.1.0 ===
+## === $name set by $PROJNAME ===
+#export PATH="$target/$dir/exe/$arch:\$PATH"
+## === end $name ===
 #
 #EOF
 }
