@@ -11,7 +11,7 @@ The main driver scripts are `install_tmcstu.sh` and `install_repos_pkgs.sh`.
 
 ### `install_tmcstu.sh`
 
-This script is used to initialize.
+This script is used to initialize and install components by using system package manager.
 Basically, you only need to run with the subcommand `init`.
 
 ```bash
@@ -39,14 +39,15 @@ For more detailed instruction, see information from
 
 ### `install_repos_pkgs.sh`
 
-This script is used to install tools from website (i.e. external repositories) and softwares obtained from the TMC workstation.
+This script is used to dowload and install tools from website (i.e. external repositories)
+and softwares obtained from the remote server.
 You can run
 
 ```bash
-./install_repos_pkgs.sh all
+./install_repos_pkgs.sh min
 ```
 
-to install the basic repositories and pacakges. Run
+to install the basic (minimal) repositories and pacakges. Run
 
 ```bash
 ./install_repos_pkgs.sh list
@@ -61,19 +62,15 @@ in `extern_repos.sh` or `remote_pkgs.sh`.
 Note that you may not have to the sources when you run the installer,
 because it will automatically detect and download from website or retrive from remote server
 if necessary. Alternatively,
-all the external repositories can be downloaded by
+source files can be downloaded before-hand by
 
 ```bash
-./install_tmcstu.sh repo
+./install_repos_pkgs.sh repos # only online repositories
+./install_repos_pkgs.sh pkgs  # only packages on remote server
+./install_repos_pkgs.sh all   # both repositories and packages
 ```
 
-and remote pacakges can be retrieved by
-
-```bash
-./install_tmcstu.sh pkg
-```
-
-After this, you can find all source files in `repos` and `pkgs` directories.
+After this, you can find source files in `repos` and `pkgs` directories.
 
 ## Customization
 

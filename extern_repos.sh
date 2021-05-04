@@ -34,6 +34,10 @@ repos_names=(
   "netcdf"
 )
 
+function is_repo() {
+  printf '%s\n' "${repos_names[@]}" | grep -q "$1"
+}
+
 declare -A repos_urls
 repos_urls=(
   ["Chrome"]="https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm"

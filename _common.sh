@@ -90,7 +90,7 @@ function rsync_pkg() {
   esac
 
   if [[ "$if_check_ssh" != 0 ]]; then
-    ssh_connection_check "$connection"
+    ssh_connection_check "$connection" || return 1
   fi
   cwd="$(pwd)"
   mkdir -p "$(dirname "$dest")"

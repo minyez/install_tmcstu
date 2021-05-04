@@ -13,13 +13,13 @@
 * 系统与硬件
 #+NAME: TMCSTU 主机系统与主要硬件规格
 #+ATTR_LATEX: :booktabs t
-| 项目 | 值                                                          |
-|------+-------------------------------------------------------------|
-| OS   | Fedora 32 (2021-04-12)                                      |
-| CPU  | Intel Core i7-10700 @2.90GHz, 2 threads/core \times 8 cores |
-| 内存 | Samsung 8GB DDR4-3200MT +  Hynix/Hyundai 8GB DDR4-3200MT    |
-| 硬盘 | 256G SSD (SK Hynix BC511) + 2T HDD (ST20000DM008)           |
-| GPU  | NVIDIA Quadro P620 (128 \times 4 CUDA cores, 2GB Mem)       |
+| 项目 | 值                                                                                        |
+|------+-------------------------------------------------------------------------------------------|
+| OS   | Fedora 32 (2021-04-12)                                                                    |
+| CPU  | Intel Core i7-10700 @2.90GHz, 2 threads/core \times 8 cores, 指令集 SSE4.1, SSE4.2, AVX2  |
+| 内存 | Samsung 8GB DDR4-3200MT +  Hynix/Hyundai 8GB DDR4-3200MT                                  |
+| 硬盘 | 256G SSD (SK Hynix BC511) + 2T HDD (ST20000DM008)                                         |
+| GPU  | NVIDIA Quadro P620 (128 \times 4 CUDA cores, 2GB Mem)                                     |
 
 * 软件
 ** 快速上手
@@ -30,7 +30,7 @@
 rsync -ar yourusername@222.29.156.110:/home/zhangmy/install_tmcstu ~/
 cd ~/install_tmcstu
 chmod +x install_tmcstu.sh && ./install_tmcstu.sh init
-chmod +x install_repos_pkgs.sh && ./install_repos_pkgs.sh all
+chmod +x install_repos_pkgs.sh && ./install_repos_pkgs.sh min
 ./install_repos_pkgs.sh list # check extra software to install
 #+end_src
 
@@ -74,10 +74,11 @@ chmod +x install_tmcstu.sh
 在使用 =install_repos_pkgs.sh= 安装时, 脚本会自动检测是否需要下载或者提取安装包.
 另外, 也可以通过
 #+begin_src shell
-./install_tmcstu.sh repo
-./install_tmcstu.sh pkg
+./install_repos_pkgs.sh repos # 仅网络源码
+./install_repos_pkgs.sh pkgs  # 仅工作站源码
+./install_repos_pkgs.sh all   # 网络和工作站源码
 #+end_src
-可分别完成所有程序下载和存档抓取. 抓取后的程序在 =repos= 和 =pkgs= 文件夹下.
+可完成所有程序下载和存档抓取. 抓取后的程序在 =repos= 和 =pkgs= 文件夹下.
 
 目前, 大部分抓取后的程序需要自己安装. 有部分软件已经写好了安装器, 输入
 #+begin_src shell
@@ -138,8 +139,7 @@ chmod +x install_tmcstu.sh
 这时 GPU 也能向显示器输出高画质视频.
 
 如果你没有 Mini DP 线, 也没有观看高画质视频的需求, 只需要用 NVIDIA GPU 作 CUDA 计算,
-那么可以选择同时启用双显卡而只用集成显卡输出视频.
-这涉及以下几步操作.
+那么可以选择同时启用双显卡而只用集成显卡输出视频. 这涉及以下几步操作.
 
 1. 关机, 用组里的 VGA-MiniDP 转接口, 接入 NVIDIA GPU (有四个 MiniDP 孔槽).
 2. 重启电脑, 在按下开机键的同时连续敲击 F10, 直到进入 BIOS.
@@ -151,9 +151,7 @@ chmod +x install_tmcstu.sh
 #+begin_src shell
 ./deviceQuery
 #+end_src
-或用上面脚本的 =vc= 命令来验证.
-
-如检测到 Quadro P620 则表明设置成功.
+或用上面脚本的 =vc= 命令来验证. 如检测到 Quadro P620 则表明设置成功.
 
 ** 开机后按 F10 无法进入 BIOS
 这与 BIOS 设置有关. 按 F10 后若听到 "嘟" 的一声, 那么实际上已经进入 BIOS 了, 只是显示器没有能够显示 BIOS 界面.
@@ -164,10 +162,16 @@ chmod +x install_tmcstu.sh
 若在刷新 shell 后仍无法 which 到, 那么很有可能是安装器作者没有编写对应的 bashrc 修改.
 此时需要你对照 =~/local/programs= 下的程序手动添加, 或者通知安装器作者修改.
 ** 为什么不使用 modulefile 来管理安装程序的环境变量
-作者精力有限, 暂时没有实现的动力 :( 读者可根据对应 bashrc 代码块, 参考[[https://modules.readthedocs.io/en/latest/modulefile.html][这一链接]]
-编写自己的 modulefile.
+作者精力有限, 暂时没有实现的动力 :( 读者可根据对应 bashrc 代码块, 参考[[https://modules.readthedocs.io/en/latest/modulefile.html][这一链接]]编写自己的 modulefile.
+** 无法从工作站提取程序存档
+打开 =remote_pkgs.sh=, 修改 =SSH_CONNECTION= 为你连接工作站时所用的名称. 例如
+
+#+begin_src shell
+SSH_CONNECTION="zhangmy@222.29.156.110"
+#+end_src
 
 * Changelog
 - 2021-04-12 草稿
 - 2021-04-26 实现部分安装器
 - 2021-04-29 实现更多的安装器, 包括 Intel, CP2k 及其依赖.
+- 2021-05-04 将 =install_tmcstu.sh= 中源码下载功能移入 =install_repos_pkgs.sh=

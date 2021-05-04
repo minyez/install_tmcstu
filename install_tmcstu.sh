@@ -3,16 +3,14 @@ source _common.sh
 source custom.sh
 
 function help() {
-  echo "$1: A script to install a new TMC student PC workstation for research"
+  echo "$1: scripts to install a new TMC student PC workstation for research"
   echo ""
   echo "Subcommands:"
-  echo "  [ help   ] : this help info"
-  echo "  [ init   ] : minimal install from Fedora repository"
-  echo "  [ cuda   ] : install necessary components to enable CUDA programming"
-  echo "  [ vc     ] : verify cuda installation"
-  echo "  [ pkg    ] : retrieve packages from remote server"
-  echo "  [ repo   ] : download external repositories"
-  echo "  [ docker ] : install Docker engine"
+  echo "  help   : this help info"
+  echo "  init   : minimal install from Fedora repository"
+  echo "  cuda   : install necessary components to enable CUDA programming"
+  echo "  vc     : verify cuda installation"
+  echo "  docker : install Docker engine"
   echo ""
   echo "Notes: "
   echo "  1. it may require sudo when replacing repo source or installing by dnf"
@@ -24,11 +22,12 @@ function help() {
   echo "  3. more science code: pyscf, Wannier90, QE, abinit, deepmd, lammps"
   echo "  4. config scripts, patches, makefile, modulefiles, etc"
   echo ""
-  echo "Update: 2021-04-29"
+  echo "Update: 2021-05-04"
   echo ""
   echo "Contributors: MY Zhang"
   echo ""
 }
+#  echo "  [ conda  ] : install miniconda"
 
 FEDORA_VERSION=$(get_fedora_ver)
 FEDORA_VERSION_MIN=29
@@ -159,10 +158,9 @@ function main() {
       "init"   ) init_fedora ;;
       "cuda"   ) install_cuda;;
       "vc"     ) verify_cuda;;
-      "repo"   ) bash _download_extern_repos.sh 1 ;;
-      "pkg"    ) bash _retrieve_remote_pkgs.sh 1 ;;
       "docker" ) install_docker ;;
 #      "-p" ) install_pyenv ;;
+#      "conda" ) install_conda ;;
       * ) echo "Error: unknown command/option " "${opts[0]}"; \
         help "$0"; exit 1 ;;
     esac

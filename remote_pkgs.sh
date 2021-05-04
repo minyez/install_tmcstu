@@ -46,6 +46,10 @@ pkgs_names=(
   "qe-6.6"
 )
 
+function is_pkg() {
+  printf '%s\n' "${pkgs_names[@]}" | grep -q "$1"
+}
+
 # URL can either be the path to the root directory of the pacakge (!!!must end with a backslash!!!)
 #         or a path to single file.
 # using -a may raise syntax error: invalid arithmetic operator for names having dots
