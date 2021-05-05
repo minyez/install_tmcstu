@@ -53,7 +53,7 @@ repos_urls=(
   ["libxc-5.1.3"]="http://www.tddft.org/programs/libxc/down.php?file=5.1.3/libxc-5.1.3.tar.gz"
   ["atat3-44"]="http://alum.mit.edu/www/avdw/atat/atat3_44.tar.gz"
   # do not use the tar.gz source code for CP2k
-  # otherwise will have "No DBCSR submodule available "
+  # otherwise will have "No DBCSR submodule available"
   # according to https://www.gitmemory.com/issue/cp2k/cp2k/1302/759304465
   ["cp2k-7.1-intel"]="https://github.com/cp2k/cp2k/releases/download/v7.1.0/cp2k-7.1.tar.bz2"
   ["libxc-4.3.4-intel"]="http://www.tddft.org/programs/libxc/down.php?file=4.3.4/libxc-4.3.4.tar.gz"
@@ -239,7 +239,7 @@ function _libxsmm_115_intel() {
   fi
   cd "$REPOS_DIR" || exit 1
   tar -zxf libxsmm-1.15.tar.gz && cd libxsmm-1.15 || exit 1
-  make CC=icc FC=ifort PREFIX="$target/$dir" install
+  make clean && make CC=icc FC=ifort PREFIX="$target/$dir" install
   # make test
   # all tests passed, 210428
   cd ..
@@ -259,7 +259,7 @@ function _libint_260_cp2k_lm6_intel() {
   cd "$REPOS_DIR" || exit 1
   tar -zxf "$output"
   cd "libint-v2.6.0-cp2k-lmax-6" || exit 1
-  make clean && make distclean
+  make distclean
   ./configure CC=icc CXX=icpc FC=ifort --prefix="$target/$dir" --enable-fortran
   # avoid install error by only compiling libint_f.F90 in fortran/
   cd fortran && \
@@ -282,16 +282,17 @@ function _elpa_201911001_intel() {
     [[ -d "$target/$dir" ]] && return 0
     return 1
   fi
-  cd "$REPOS_DIR" || exit 1
+  cd "$REPOS_DIR" || return 1
   tar -zxf "$output"
-  cd elpa-2019.11.001 || exit 1
+  cd elpa-2019.11.001 || return 1
+  [[ -z "$MKLROOT" ]] && { echo "Error: You must set MKLROOT before installing $name"; return 1; }
   ### TODO issue: ifort: specifying -lm before files may supersede the Intel(R) math library and affect performance
-  libs=$(echo -L$MKLROOT/lib/intel64 -lmkl_{scalapack_lp64,intel_lp64,sequential,core,blacs_intelmpi_lp64} -lpthread -lm -ldl)
+  libs=$(echo -L"$MKLROOT/lib/intel64" -lmkl_{scalapack_lp64,intel_lp64,sequential,core,blacs_intelmpi_lp64} -lpthread -lm -ldl)
   ./configure FC=mpiifort CC=mpiicc --prefix="$target/$dir" \
     SCALAPACK_LDFLAGS="$libs -Wl,-rpath,$MKLROOT/lib/intel64" \
     SCALAPACK_FCFLAGS="$libs -I$MKLROOT/include"
-  make -j"${MAKE_NPROCS}" && make install
-  ### TODO make check: 2-stage almost all failed
+  make clean && make -j"${MAKE_NPROCS}" && make install
+  ### NOTE make check: 2-stage almost all failed, but cp2k test looks okay
   ### # TOTAL: 104
   ### # PASS:  28
   ### # SKIP:  56
@@ -335,10 +336,12 @@ function _cp2k_71_intel() {
   fi
   ### check and install dependencies that maybe useful for programs other than cp2k
   ### it would be better to install before hand
-  depends=("libxc-4.3.4-intel"
-           "libint-v2.6.0-cp2k-lmax-6-intel"
-           "elpa-2019.11.001-intel"
-           "libxsmm-1.15-intel")
+  depends=(
+    "libxc-4.3.4-intel"
+    "libint-v2.6.0-cp2k-lmax-6-intel"
+    "elpa-2019.11.001-intel"
+    "libxsmm-1.15-intel"
+  )
   echo "Will install dependencies: ${depends[*]}"
   if ( { for d in "${depends[@]}"; do ${repos_installers[$d]} "$target"; done } ); then
     cd "$REPOS_DIR" || exit 1
@@ -379,13 +382,13 @@ function _cp2k_71_intel() {
     cd "$cwd" && return 1
   fi
   cd "$cwd" || return 1
-#  # set bashrc
-#  cat >> ~/.bashrc << EOF
-## === $name set by $PROJNAME ===
-#export PATH="$target/$dir/exe/$arch:\$PATH"
-## === end $name ===
-#
-#EOF
+  # set bashrc
+  cat >> ~/.bashrc << EOF
+# === $name set by $PROJNAME ===
+export PATH="$target/$dir/exe/$arch:\$PATH"
+# === end $name ===
+
+EOF
 }
 
 function _install_repo_rpm() {

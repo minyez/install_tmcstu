@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
 source _common.sh
+source custom.sh
 source extern_repos.sh
 source remote_pkgs.sh
 
-# location to install; usually no need to change
-prefix="$HOME/local/programs"
-
 function help() {
-  echo "$1: Install part of the external repos and software packages into target directory: $prefix"
+  echo "$1: Install external repositories and software packages into target directory: $PREFIX"
   echo ""
   echo "Subcommands:"
   echo "  help   : print this message"
@@ -17,7 +15,11 @@ function help() {
   echo ""
   echo "  dl [all/repos/pkgs/name] : download only"
   echo ""
-  echo "Update: 2021-05-04"
+  echo "TODOs:"
+  echo "  1. more tools: conda, pyenv, hdf5, netcdf"
+  echo "  2. more science code: pyscf, Wannier90, QE, abinit, deepmd, lammps"
+  echo ""
+  echo "Update: 2021-05-05"
   echo ""
   echo "Contributors: MY Zhang"
   echo ""
@@ -114,8 +116,8 @@ function _download_one() {
 }
 
 function _download_only() {
-  function help() {
-    echo "require arguments for dowload, e.g."
+  function warn() {
+    echo "Require arguments for dowload, e.g."
     echo ""
     echo "  dl all"
     echo "  dl repos"
@@ -125,7 +127,7 @@ function _download_only() {
   }
   opts=("$@")
   if (( $# == 0 )); then
-    help
+    warn
     return 1
   fi
   case ${opts[0]} in
@@ -137,13 +139,13 @@ function _download_only() {
 }
 
 function _install_one() {
-  mkdir -p "$prefix"
+  mkdir -p "$PREFIX"
   name="$1"
   if [[ -n "${repos_installers[$name]}" ]]; then
-    ${repos_installers[$name]} "$prefix"
+    ${repos_installers[$name]} "$PREFIX"
   elif [[ -n "${pkgs_installers[$name]}" ]]; then
     #echo "Installer for $name is not available"
-    ${pkgs_installers[$name]} "$prefix"
+    ${pkgs_installers[$name]} "$PREFIX"
   else
     return 1
   fi

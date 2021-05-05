@@ -29,20 +29,21 @@
 #+begin_src shell
 rsync -ar yourusername@222.29.156.110:/home/zhangmy/install_tmcstu ~/
 cd ~/install_tmcstu
-chmod +x install_tmcstu.sh && ./install_tmcstu.sh init
-chmod +x install_repos_pkgs.sh && ./install_repos_pkgs.sh min
-./install_repos_pkgs.sh list # check extra software to install
+chmod +x install_tmcstu && ./install_tmcstu init
+chmod +x install_repos_pkgs && ./install_repos_pkgs min
+./install_repos_pkgs list # check extra software to install
 #+end_src
 
 时间约为 10 到 20 分钟. 这会为你安装
 
-- ViM, XmGrace, TeXLive, Visual Studio Code
+- ViM, XmGrace, TeXLive
 - GCC (包括 gfortran), make, cmake, autoconfig, ...
 - XCrySDen, VESTA, JabRef, Zotero
 
 ** 环境初始化
-初始用户为 =tmcstu=.
-Fedora 环境初始化和基础软件安装通过 =install_tmcstu.sh= 脚本完成,
+新 PC 的初始用户名为 =tmcstu=. 用户名可保持不变, 建议通过 =passwd= 修改密码.
+
+Fedora 环境初始化和基础软件安装通过 =install_tmcstu= 脚本完成,
 该脚本可从工作站获取
 #+begin_src shell
 rsync -ar yourusername@222.29.156.110:/home/zhangmy/install_tmcstu .
@@ -51,16 +52,19 @@ rsync -ar yourusername@222.29.156.110:/home/zhangmy/install_tmcstu .
 在终端依次输入
 #+begin_src shell
 cd install_tmcstu
-chmod +x install_tmcstu.sh
-./install_tmcstu.sh init
+chmod +x install_tmcstu
+./install_tmcstu init
 #+end_src
 以完成基础软件的安装.
-包括 Environment Module, Vim, GCC, cmake, TeX, Grace 等等.
-具体内容可以阅读该脚本.
+包括 Environment Module, Vim, GCC, cmake, TeX, XmGrace 等等.
+具体内容可以阅读该脚本的帮助说明
+#+begin_src shell
+./install_tmcstu help
+#+end_src
 
 
 ** 常用科研工具
-脚本 =install_repos_pkgs.sh= 实现了部分与课题组有关的科研工具 (例如可视化工具, 编译器, 第一性原理计算软件)
+脚本 =install_repos_pkgs= 实现了部分与课题组有关的科研工具 (例如可视化工具, 编译器, 第一性原理计算软件)
 的安装.
 
 
@@ -71,18 +75,20 @@ chmod +x install_tmcstu.sh
 - 商业程序等较难获取的程序: 已在工作站上存档, 用 SSH 从工作站上获取.
   这些程序记录在 =remote_pkgs.sh= 的 =pkgs_names= 数组中.
 
-在使用 =install_repos_pkgs.sh= 安装时, 脚本会自动检测是否需要下载或者提取安装包.
+在使用 =install_repos_pkgs= 安装时, 脚本会自动检测是否需要下载或者提取安装包.
 另外, 也可以通过
 #+begin_src shell
-./install_repos_pkgs.sh repos # 仅网络源码
-./install_repos_pkgs.sh pkgs  # 仅工作站源码
-./install_repos_pkgs.sh all   # 网络和工作站源码
+./install_repos_pkgs dl repos # 仅网络源码
+./install_repos_pkgs dl pkgs  # 仅工作站源码
+./install_repos_pkgs dl all   # 网络和工作站源码
 #+end_src
 可完成所有程序下载和存档抓取. 抓取后的程序在 =repos= 和 =pkgs= 文件夹下.
+注意, 在使用 =pkgs= 或者 =all= 前, 请先修改 =remote_pkgs.sh= 中的 =SSH_CONNECTION= 变量, 并确保该 SSH 可通过证书验证, 无需输入密码.
+相关设置可以参考这一链接: [[https://blog.csdn.net/m0_37822234/article/details/82494556][SSH 远程登录和 SSH 免密码登录]]
 
 目前, 大部分抓取后的程序需要自己安装. 有部分软件已经写好了安装器, 输入
 #+begin_src shell
-./install_repos_pkgs.sh list
+./install_repos_pkgs list
 #+end_src
 可查看已有的安装器实现. 部分安装器会修改用户的 bashrc.
 另有一部分安装器, 尽管没有实现完全的脚本化安装, 但给出了完整的安装提示, 同学们可根据提示来手动安装.
@@ -105,7 +111,7 @@ chmod +x install_tmcstu.sh
 
 为方便使用, 输入
 #+begin_src shell
-./install_repos_pkgs.sh all
+./install_repos_pkgs all
 #+end_src
 即可安装最基本的几个程序.
 
@@ -115,18 +121,24 @@ chmod +x install_tmcstu.sh
 ** 安装 CUDA toolkit
 如需安装 CUDA toolkit, 输入
 #+begin_src shell
-./install_tmcstu.sh cuda
+./install_tmcstu cuda
 #+end_src
 安装完成后, 在确认 CUDA GPU 可用的情况下 (见 Q&A "启用 CUDA 独显"一节) 输入
 #+begin_src shell
-./install_tmcstu.sh vc
+./install_tmcstuh vc
 #+end_src
 对 CUDA toolkit 安装进行验证.
 
 ** 安装 Docker 引擎
-同样可以通过 =install_tmcstu.sh= 安装, 只需运行
+同样可以通过 =install_tmcstu= 安装, 只需运行
 #+begin_src shell
-./install_tmcstu.sh docker
+./install_tmcstu docker
+#+end_src
+
+** 安装 VS Code
+只需运行
+#+begin_src shell
+./install_tmcstu vscode
 #+end_src
 
 * Q&A
@@ -147,11 +159,11 @@ chmod +x install_tmcstu.sh
 4. 按 F10, YES 确认保存设置, 此时机器自动重启, 进入 Fedora GUI 后会有些卡顿, 但不用惊慌.
 5. 关机. 拔出 MiniDP 转接口, 直接接入 VGA 或 DP, 重启.
 
-在安装完 CUDA-kit 后, 进入 NVIDIA CUDA 样例, 设置好环境变量后运行 =deviceQuery=
+在安装完 CUDA-kit 后    , 进入 NVIDIA CUDA 样例, 设置好环境变量后运行 =deviceQuery=
 #+begin_src shell
 ./deviceQuery
 #+end_src
-或用上面脚本的 =vc= 命令来验证. 如检测到 Quadro P620 则表明设置成功.
+或用上面脚本的 =vc= 子命令来验证. 如检测到 Quadro P620 则表明设置成功.
 
 ** 开机后按 F10 无法进入 BIOS
 这与 BIOS 设置有关. 按 F10 后若听到 "嘟" 的一声, 那么实际上已经进入 BIOS 了, 只是显示器没有能够显示 BIOS 界面.
@@ -174,4 +186,8 @@ SSH_CONNECTION="zhangmy@222.29.156.110"
 - 2021-04-12 草稿
 - 2021-04-26 实现部分安装器
 - 2021-04-29 实现更多的安装器, 包括 Intel, CP2k 及其依赖.
-- 2021-05-04 将 =install_tmcstu.sh= 中源码下载功能移入 =install_repos_pkgs.sh=
+- 2021-05-04 将 =install_tmcstu.sh= 中源码下载功能移入 =install_repos_pkgs.sh=.
+- 2021-05-05 移除可执行脚本名字中的 sh 后缀.
+
+  - 将 =install_repos_pkgs= 中的 =PREFIX= 变量移入 =custom.sh=.
+  - =init= 子命令不再引入 VS Code repo. Visual Studio code 的安装通过 =install_tmcstu= 子命令 =vscode= 完成.

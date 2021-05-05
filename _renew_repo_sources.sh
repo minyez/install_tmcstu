@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+source custom.sh
+
 yumrepos="/etc/yum.repos.d"
 
 function backup_fedora_repo() {
@@ -15,7 +17,6 @@ function replace_fedora_mirror() {
   # see https://mirrors.ustc.edu.cn
   #     https://mirrors.tuna.tsinghua.edu.cn
   #     https://mirrors.pku.edu.cn
-  REPO_SOURCES="$1"
   if [[ "$REPO_SOURCES" == "THU" ]]; then
     echo "Replacing with TUNA mirror"
     backup_fedora_repo fedora
@@ -78,9 +79,8 @@ EOF
   fi
 }
 
-function add_extra_repos() {
-  # adds some source repos to download packages beyond the official source
-  # MS VS code
+function add_vscode() {
+  # add VS code repo
   rpm --import https://packages.microsoft.com/keys/microsoft.asc
   backup_fedora_repo vscode
   cat > $yumrepos/vscode.repo << EOF
@@ -93,8 +93,11 @@ gpgkey=https://packages.microsoft.com/keys/microsoft.asc"
 EOF
 }
 
-replace_fedora_mirror "$@"
-add_extra_repos
+case "$1" in
+  "fedora" ) replace_fedora_mirror ;;
+  "vscode" ) add_vscode ;;
+esac
+
 dnf check-update
 dnf makecache
 

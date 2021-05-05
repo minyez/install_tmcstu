@@ -9,3 +9,7 @@
 
 REPO_SOURCES="THU"
 MAKE_NPROCS=1
+
+# location to install repos and pacakges; usually no need to change
+PREFIX="$HOME/local/programs"
+

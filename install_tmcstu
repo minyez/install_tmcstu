@@ -11,18 +11,17 @@ function help() {
   echo "  cuda   : install necessary components to enable CUDA programming"
   echo "  vc     : verify cuda installation"
   echo "  docker : install Docker engine"
+  echo "  vscode : install Visual Studio Code"
   echo ""
   echo "Notes: "
-  echo "  1. it may require sudo when replacing repo source or installing by dnf"
-  echo "  2. to retrieve packages from your TMC workstation account, you need a password-free connection"
+  echo "  1. installation here mostly uses \`dnf\`"
+  echo "  2. it may require sudo to replace repo source or install by \`dnf\`"
   echo ""
   echo "TODOs:"
   echo "  1. obtain newest workable hosts and setup for Google and GitHub, etc"
-  echo "  2. more tools: conda, pyenv, hdf5, netcdf"
-  echo "  3. more science code: pyscf, Wannier90, QE, abinit, deepmd, lammps"
-  echo "  4. config scripts, patches, makefile, modulefiles, etc"
+  echo "  2. config scripts, patches, makefile, modulefiles, etc"
   echo ""
-  echo "Update: 2021-05-04"
+  echo "Update: 2021-05-05"
   echo ""
   echo "Contributors: MY Zhang"
   echo ""
@@ -58,11 +57,9 @@ function install_sci_tools () {
   # (xm)grace, gnuplot, imagemagick, ghostscript, povray for visualization
   # texstudio and texlive for writing tex, texdoc for documentation
   # extra useful packages
-  # code (VS code) as a popular IDE
   sudo dnf -y install units \
     grace gnuplot ImageMagick ghostscript povray \
-    texstudio texlive texlive-{texdoc,texlive-en-doc,texlive-zh-cn-doc} \
-    code
+    texstudio texlive texlive-{texdoc,texlive-en-doc,texlive-zh-cn-doc}
   sudo dnf -y install texlive-{ctex,xcjk2uni} \
     texlive-{physics,abstract,wordcount,xargs,worksheet,wordlike,zhnumber} \
     texlive-{cleveref,overpic,SIunits,a0poster,algorithmicx,algorithms,answers,annotate} \
@@ -94,7 +91,7 @@ function init_fedora() {
     exit 1
   fi
 
-  sudo bash _renew_repo_sources.sh "$REPO_SOURCES"
+  sudo bash _renew_repo_sources.sh fedora
   sudo dnf -y update
   sudo dnf -y upgrade
 
@@ -148,6 +145,12 @@ function verify_cuda() {
   cd "$cwd" || exit 0
 }
 
+function install_vscode() {
+  # install code (VS code) as a popular IDE by dnf
+  sudo bash _renew_repo_sources.sh vscode
+  sudo dnf install -y code
+}
+
 function main() {
   opts=("$@")
   if (( $# == 0 )); then
@@ -159,6 +162,7 @@ function main() {
       "cuda"   ) install_cuda;;
       "vc"     ) verify_cuda;;
       "docker" ) install_docker ;;
+      "vscode" ) install_vscode ;;
 #      "-p" ) install_pyenv ;;
 #      "conda" ) install_conda ;;
       * ) echo "Error: unknown command/option " "${opts[0]}"; \
