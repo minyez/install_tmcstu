@@ -13,7 +13,7 @@ function help() {
   echo "  min    : minimal install"
   echo "  [name] : install repo or package 'name'"
   echo ""
-  echo "  dl [all/repos/pkgs/name] : download only"
+  echo "  dl [list/all/repos/pkgs/name] : download only"
   echo ""
   echo "TODOs:"
   echo "  1. more tools: conda, pyenv, hdf5, netcdf"
@@ -115,10 +115,24 @@ function _download_one() {
   fi
 }
 
+function _list_downloadable() {
+  echo "Downloadable repos:"
+  for name in "${repos_names[@]}"; do
+    [[ -n "${repos_urls[$name]}" ]] && echo " - $name"
+  done
+  echo ""
+  echo "Downloadable packages (by SSH: $SSH_CONNECTION)"
+  for name in "${pkgs_names[@]}"; do
+    [[ -n "${pkgs_urls[$name]}" ]]  && echo " - $name"
+  done
+  echo ""
+}
+
 function _download_only() {
   function warn() {
     echo "Require arguments for dowload, e.g."
     echo ""
+    echo "  dl list"
     echo "  dl all"
     echo "  dl repos"
     echo "  dl pkgs"
@@ -131,10 +145,11 @@ function _download_only() {
     return 1
   fi
   case ${opts[0]} in
-    "all" ) _download_all_repos; _retrieve_all_pkgs;;
+    "all" ) _download_all_repos; _retrieve_all_pkgs ;;
     "repos" ) _download_all_repos ;;
-    "pkgs" ) _retrieve_all_pkgs;;
-    * ) _download_one "${opts[@]}";;
+    "pkgs" ) _retrieve_all_pkgs ;;
+    "list" | "l" | "--list" | "-l" ) _list_downloadable ;;
+    * ) _download_one "${opts[@]}" ;;
   esac
 }
 
