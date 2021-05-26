@@ -8,6 +8,8 @@
 #  THU:  mirror maintained by TUNA, Tsinghua University
 
 REPO_SOURCES="THU"
+
+# Number of processes to use for make
 MAKE_NPROCS=1
 
 # location to install repos and pacakges; usually no need to change

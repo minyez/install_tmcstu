@@ -114,6 +114,8 @@ function install_cuda() {
   # disable the nvidia-driver if existing
   # https://ask.fedoraproject.org/t/dnf-update-nvidia-error/8864/5
   # https://rpmfusion.org/Howto/CUDA#Which_driver_Package
+  sudo dnf config-manager --add-repo \
+    "https://developer.download.nvidia.com/compute/cuda/repos/fedora$FEDORA_VERSION/x86_64/cuda-fedora$FEDORA_VERSION.repo"
   sudo dnf clean expire-cache
   sudo dnf -y module disable nvidia-driver
   sudo dnf -y install cuda

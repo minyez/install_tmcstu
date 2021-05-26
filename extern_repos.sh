@@ -288,6 +288,7 @@ function _elpa_201911001_intel() {
   [[ -z "$MKLROOT" ]] && { echo "Error: You must set MKLROOT before installing $name"; return 1; }
   ### TODO issue: ifort: specifying -lm before files may supersede the Intel(R) math library and affect performance
   libs=$(echo -L"$MKLROOT/lib/intel64" -lmkl_{scalapack_lp64,intel_lp64,sequential,core,blacs_intelmpi_lp64} -lpthread -lm -ldl)
+  # rpath to let mkl automatically loaded when running elpa
   ./configure FC=mpiifort CC=mpiicc --prefix="$target/$dir" \
     SCALAPACK_LDFLAGS="$libs -Wl,-rpath,$MKLROOT/lib/intel64" \
     SCALAPACK_FCFLAGS="$libs -I$MKLROOT/include"
