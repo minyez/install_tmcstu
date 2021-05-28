@@ -21,7 +21,7 @@ function help() {
   echo "  1. obtain newest workable hosts and setup for Google and GitHub, etc"
   echo "  2. config scripts, patches, makefile, modulefiles, etc"
   echo ""
-  echo "Update: 2021-05-05"
+  echo "Update: 2021-05-28"
   echo ""
   echo "Contributors: MY Zhang"
   echo ""
@@ -38,10 +38,11 @@ function install_pyenv() {
 }
 
 function install_config_tools() {
-  # since CUDA incompatiblity may happen for GCC, use the stable version instead of update
-  sudo dnf --enablerepo=fedora -y install \
+  # since CUDA incompatiblity may happen for GCC
+  # use the stable version from fedora repo instead of update
+  sudo dnf --disablerepo="*" --enablerepo=fedora -y install gcc gfortran gcc-c++
+  sudo dnf -y install \
     make cmake autoconf automake git binutils binutils-devel \
-    gcc gfortran gcc-c++ \
     bzip2 gzip p7zip \
     environment-modules \
     vim-enhanced neovim \
