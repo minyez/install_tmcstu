@@ -92,7 +92,7 @@ function rsync_pkg() {
   if [[ "$if_check_ssh" != 0 ]]; then
     ssh_connection_check "$connection" || return 1
   fi
-  cwd="$(pwd)"
+
   mkdir -p "$(dirname "$dest")"
   echo "==rsync==: try syncing $name with:"
   echo "    rsync $rsync_opts ${connection}:${src} ${dest}"

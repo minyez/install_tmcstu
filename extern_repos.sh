@@ -25,6 +25,7 @@ repos_names=(
   "atat3-44"
   "cp2k-7.1-intel"
   # dependencies for CP2k 7.1
+  "spglib-1.16.1-intel"
   "libxc-4.3.4-intel"
   "libint-v2.6.0-cp2k-lmax-6-intel"
   "elpa-2019.11.001-intel"
@@ -56,6 +57,7 @@ repos_urls=(
   # otherwise will have "No DBCSR submodule available"
   # according to https://www.gitmemory.com/issue/cp2k/cp2k/1302/759304465
   ["cp2k-7.1-intel"]="https://github.com/cp2k/cp2k/releases/download/v7.1.0/cp2k-7.1.tar.bz2"
+  ["spglib-1.16.1-intel"]="https://github.com/spglib/spglib/archive/refs/tags/v1.16.1.tar.gz"
   ["libxc-4.3.4-intel"]="http://www.tddft.org/programs/libxc/down.php?file=4.3.4/libxc-4.3.4.tar.gz"
   ["elpa-2019.11.001-intel"]="https://elpa.mpcdf.mpg.de/software/tarball-archive/Releases/2019.11.001/elpa-2019.11.001.tar.gz"
   ["libint-v2.6.0-cp2k-lmax-6-intel"]="https://github.com/cp2k/libint-cp2k/releases/download/v2.6.0/libint-v2.6.0-cp2k-lmax-6.tgz"
@@ -68,6 +70,7 @@ declare -A repos_outputs
 repos_outputs=(
   ["Zotero"]="zotero.tar.bz2"
   ["lapack-3.9.1"]="lapack-3.9.1.tar.gz"
+  ["spglib-1.16.1-intel"]="spglib-1.16.1.tar.gz"
 )
 
 declare -A repos_installers
@@ -78,6 +81,7 @@ repos_installers=(
   ["JabRef"]="_install_repo_rpm JabRef"
   ["Chrome"]="_install_repo_rpm Chrome"
   ["cp2k-7.1-intel"]="_cp2k_71_intel"
+  ["spglib-1.16.1-intel"]="_spglib_1161_intel"
   ["libxc-4.3.4-intel"]="_libxc_434_intel"
   ["libint-v2.6.0-cp2k-lmax-6-intel"]="_libint_260_cp2k_lm6_intel"
   ["libxsmm-1.15-intel"]="_libxsmm_115_intel"
@@ -324,6 +328,27 @@ function _libxc_434_intel() {
   cd "$cwd" || return 1
 }
 
+function _spglib_1161_intel() {
+  target="$1"
+  name="spglib-1.16.1-intel"
+  dir="$name"
+  if (check_repo_install "$target" "$dir" "$name"); then
+    output=$(get_repo_output "$name")
+    cwd=$(pwd)
+  else
+    [[ -d "$target/$dir" ]] && return 0
+    return 1
+  fi
+  cd "$REPOS_DIR" || return 1
+  tar -zxf "$output"
+  cd spglib-1.16.1 || return 1
+  mkdir -p _build && cd _build || return 1
+  CC=icc cmake -DCMAKE_INSTALL_PREFIX="" ..
+  CC="icc -openmp" make
+  make DESTDIR="$target/$dir" install
+  cd "$cwd" || return 1
+}
+
 function _cp2k_71_intel() {
   target="$1"
   name="cp2k-7.1-intel"
@@ -342,6 +367,7 @@ function _cp2k_71_intel() {
     "libint-v2.6.0-cp2k-lmax-6-intel"
     "elpa-2019.11.001-intel"
     "libxsmm-1.15-intel"
+    #"spglib-1.16.1-intel"
   )
   echo "Will install dependencies: ${depends[*]}"
   if ( { for d in "${depends[@]}"; do ${repos_installers[$d]} "$target"; done } ); then
