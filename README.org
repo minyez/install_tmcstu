@@ -24,14 +24,19 @@
 * 软件
 ** 快速上手
 
-没有耐心细读下面内容的同学, 如果你是第一次使用这台机器, 请在联网后输入以下命令:
+#+begin_quote
+注意: 如果你手上的是旧版本的 =install_tmcstu=, 其中可执行脚本均带有 sh 后缀,
+那么这一版本的说明是不适用的. 请使用旧版 (changelog 截止至 2021-04-29), 或阅读
+文件夹下的 =README= (org 或 md 文件)
+#+end_quote
+
+如果你是第一个使用这台机器的人, 请在联网后输入以下命令:
 
 #+begin_src shell
 rsync -ar yourusername@222.29.156.110:/home/zhangmy/install_tmcstu ~/
 cd ~/install_tmcstu
 chmod +x install_tmcstu && ./install_tmcstu init
 chmod +x install_repos_pkgs && ./install_repos_pkgs min
-./install_repos_pkgs list # check extra software to install
 #+end_src
 
 时间约为 10 到 20 分钟. 这会为你安装
@@ -39,6 +44,8 @@ chmod +x install_repos_pkgs && ./install_repos_pkgs min
 - ViM, XmGrace, TeXLive
 - GCC (包括 gfortran), make, cmake, autoconfig, ...
 - XCrySDen, VESTA, JabRef, Zotero
+
+That's all :) 下面几节是对上面命令的具体解释和一些扩展功能, 感兴趣的话可以阅读.
 
 ** 环境初始化
 新 PC 的初始用户名为 =tmcstu=. 用户名可保持不变, 建议通过 =passwd= 修改密码.
@@ -112,7 +119,7 @@ chmod +x install_tmcstu
 
 为方便使用, 输入
 #+begin_src shell
-./install_repos_pkgs all
+./install_repos_pkgs min
 #+end_src
 即可安装最基本的几个程序.
 
@@ -160,7 +167,7 @@ chmod +x install_tmcstu
 4. 按 F10, YES 确认保存设置, 此时机器自动重启, 进入 Fedora GUI 后会有些卡顿, 但不用惊慌.
 5. 关机. 拔出 MiniDP 转接口, 直接接入 VGA 或 DP, 重启.
 
-在安装完 CUDA-kit 后    , 进入 NVIDIA CUDA 样例, 设置好环境变量后运行 =deviceQuery=
+在安装完 CUDA-kit 后, 进入 NVIDIA CUDA 样例, 设置好环境变量后运行 =deviceQuery=
 #+begin_src shell
 ./deviceQuery
 #+end_src
@@ -185,7 +192,8 @@ sudo dnf downgrade gcc
 ** 为什么不使用 modulefile 来管理安装程序的环境变量
 作者精力有限, 暂时没有实现的动力 :( 读者可根据对应 bashrc 代码块, 参考[[https://modules.readthedocs.io/en/latest/modulefile.html][这一链接]]编写自己的 modulefile.
 ** 无法从工作站提取程序存档
-打开 =remote_pkgs.sh=, 修改 =SSH_CONNECTION= 为你连接工作站时所用的名称. 例如
+首先确认你有可用的工作站账号.
+然后打开 =remote_pkgs.sh=, 修改 =SSH_CONNECTION= 为你连接工作站时所用的名称. 例如
 
 #+begin_src shell
 SSH_CONNECTION="zhangmy@222.29.156.110"
@@ -203,7 +211,14 @@ sudo service sshd restart
 #+end_src
 重启 SSH 服务. 应该可以正常 SSH 连接到 TMCSTU.
 
+在内网环境下, 公网 IP 端口转发和内网 IP 直连通常都是可以的.
+一种比较特殊的情况是, 若 TMCSTU 用的是无线网卡, 那么你在内网下是无法通过端口转发连入的.
+这一问题可能和网卡以及路由的端口转发逻辑有关, 但具体原因不清楚.
+此时只能使用内网 IP 直连.
+这一情况在 CCMETMC3 这个路由环境下验证过.
+
 * Changelog
+- 2021-06-10 补充使用无线网卡的 TMCSTU 在内网 SSH 连接时的问题.
 - 2021-05-26 补充 CUDA toolkit 安装和 SSH 连接的 QA.
 - 2021-05-06 =dl= 子命令增加 list 选项以打印所有可下载的内容.
 - 2021-05-05 移除可执行脚本名字中的 sh 后缀.
