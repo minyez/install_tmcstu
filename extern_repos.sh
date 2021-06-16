@@ -30,8 +30,10 @@ repos_names=(
   "libint-v2.6.0-cp2k-lmax-6-intel"
   "elpa-2019.11.001-intel"
   "libxsmm-1.15-intel"
+  "qe-6.6-intel"
+  # dependencies for qe
+  "hdf5-1.12.0-intel"
   # placeholders for repos, without implemented URLs
-  "hdf5"
   "netcdf"
 )
 
@@ -62,6 +64,9 @@ repos_urls=(
   ["elpa-2019.11.001-intel"]="https://elpa.mpcdf.mpg.de/software/tarball-archive/Releases/2019.11.001/elpa-2019.11.001.tar.gz"
   ["libint-v2.6.0-cp2k-lmax-6-intel"]="https://github.com/cp2k/libint-cp2k/releases/download/v2.6.0/libint-v2.6.0-cp2k-lmax-6.tgz"
   ["libxsmm-1.15-intel"]="https://www.cp2k.org/static/downloads/libxsmm-1.15.tar.gz"
+  # QE 6.6
+  ["qe-6.6-intel"]="https://gitlab.com/QEF/q-e/-/archive/qe-6.6/q-e-qe-6.6.tar.gz"
+  ["hdf5-1.12.0-intel"]="https://www.hdfgroup.org/package/hdf5-1-12-0-tar-gz/?wpdmdl=14582&refresh=60c992f7c4d191623823095"
 )
 
 # optional array to set the name of the downloaded file
@@ -71,6 +76,8 @@ repos_outputs=(
   ["Zotero"]="zotero.tar.bz2"
   ["lapack-3.9.1"]="lapack-3.9.1.tar.gz"
   ["spglib-1.16.1-intel"]="spglib-1.16.1.tar.gz"
+  ["hdf5-1.12.0-intel"]="hdf5-1.12.0.tar.gz"
+  ["qe-6.6-intel"]="qe-6.6.tar.gz"
 )
 
 declare -A repos_installers
@@ -86,6 +93,8 @@ repos_installers=(
   ["libint-v2.6.0-cp2k-lmax-6-intel"]="_libint_260_cp2k_lm6_intel"
   ["libxsmm-1.15-intel"]="_libxsmm_115_intel"
   ["elpa-2019.11.001-intel"]="_elpa_201911001_intel"
+  ["qe-6.6-intel"]="_qe_66_intel"
+  ["hdf5-1.12.0-intel"]="_hdf5_1120_intel"
 )
 
 # write installers here
@@ -323,8 +332,9 @@ function _libxc_434_intel() {
   cd "$REPOS_DIR" || return 1
   tar -zxf "$output"
   cd libxc-4.3.4 || return 1
-  make clean && ./configure FC=ifort CC=icc F77=ifort --prefix="$target/$dir"
-  make && make install
+  ./configure FC=ifort CC=icc F77=ifort --prefix="$target/$dir" || return 1
+  make || return 1
+  make install || return 1
   cd "$cwd" || return 1
 }
 
@@ -367,6 +377,7 @@ function _cp2k_71_intel() {
     "libint-v2.6.0-cp2k-lmax-6-intel"
     "elpa-2019.11.001-intel"
     "libxsmm-1.15-intel"
+    # TODO add spglib support, redo the testings
     #"spglib-1.16.1-intel"
   )
   echo "Will install dependencies: ${depends[*]}"
@@ -412,10 +423,80 @@ function _cp2k_71_intel() {
   # set bashrc
   cat >> ~/.bashrc << EOF
 # === $name set by $PROJNAME ===
+# dependencies: ${depends[*]}
 export PATH="$target/$dir/exe/$arch:\$PATH"
 # === end $name ===
 
 EOF
+}
+
+function _qe_66_intel() {
+  target="$1"
+  name="qe-6.6-intel"
+  dir="$name"
+  if (check_repo_install "$target" "$dir" "$name"); then
+    output=$(get_repo_output "$name")
+    cwd=$(pwd)
+  else
+    [[ -d "$target/$dir" ]] && return 0
+    return 1
+  fi
+  depends=(
+    "libxc-4.3.4-intel"
+    "hdf5-1.12.0-intel"
+  )
+  echo "Will install dependencies: ${depends[*]}"
+  if ( { for d in "${depends[@]}"; do ${repos_installers[$d]} "$target"; done } ); then
+    cd "$REPOS_DIR" || exit 1
+    tar -zxf "$output"
+    cd "$cwd" || exit 1
+  else
+    echo "Fail to install all dependencies of QE 6.6 (intel)"
+    return 1
+  fi
+  mv "$REPOS_DIR/q-e-qe-6.6" "$target/$dir"
+  cd "$target/$dir" || exit 1
+  ./configure prefix="$target/$dir/build" \
+    FC=ifort F90=ifort MPIF90=mpiifort CC=icc F77=ifort \
+    FCFLAGS="-O2 -I$MKLROOT/include/fftw -I$MKLROOT/include" \
+    CFLAGS="-O2 -I$MKLROOT/include/fftw -I$MKLROOT/include" \
+    --with-libxc=yes --with-libxc-prefix="$target/libxc-4.3.4-intel" \
+    --with-libxc-include="$target/libxc-4.3.4-intel"/include \
+    --with-scalapack="intel" \
+    --with-hdf5="$target/hdf5-1.12.0-intel"
+  make all || return 1
+  cd "$cwd" || return 1
+  # set bashrc
+  cat >> ~/.bashrc << EOF
+# === $name set by $PROJNAME ===
+# dependencies: ${depends[*]}
+export PATH="$target/$dir/bin:\$PATH"
+# === end $name ===
+
+EOF
+}
+
+function _hdf5_1120_intel() {
+  #function_body
+  target="$1"
+  name="hdf5-1.12.0-intel"
+  dir="$name"
+  if (check_repo_install "$target" "$dir" "$name"); then
+    output=$(get_repo_output "$name")
+    cwd=$(pwd)
+  else
+    [[ -d "$target/$dir" ]] && return 0
+    return 1
+  fi
+  cd "$REPOS_DIR" || return 1
+  tar -zxf "$output"
+  cd hdf5-1.12.0 || return 1
+  ./configure --prefix="$target/$dir" \
+    CC=mpiicc CPP="mpiicc -E" FC=mpiifort --enable-parallel \
+    --enable-fortran --enable-tools --enable-optimization="high" \
+  make && make install
+  cd "$cwd" || return 1
+  # TODO set bashrc
 }
 
 function _install_repo_rpm() {

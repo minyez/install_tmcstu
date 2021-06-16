@@ -21,7 +21,7 @@ SSH_CONNECTION="ws"
 #  2. info=progress2 to give a summary of current speed and progress. For old version rsync, one should use --progress instead
 #  3. Caveat: may break if the remote server is behind some route such that a port number may be required
 #     A workaround: add `-p port ` option in rsync or before the account
-rsync_opts="--exclude=*.o --exclude=*.mod  --exclude=*.out  --exclude=*.pyc --exclude=vasp --exclude=vasp_* -azru --info=progress2 "
+rsync_opts="--exclude=*.o --exclude=*.mod --exclude=*.out --exclude=*.pyc --exclude=vasp --exclude=vasp_* -azru --info=progress2 "
 #
 
 pkgs_names=(
@@ -43,7 +43,6 @@ pkgs_names=(
   # direct download from VMD website is tricky due to a request of filling a form
   # we retrieve it from the remote server
   # placeholders
-  "qe-6.6"
 )
 
 function is_pkg() {
@@ -64,7 +63,6 @@ pkgs_urls=(
   ["intel_licenses"]="/opt/intel/licenses/"
   ["g09e1"]="/opt/software/g09e01/"
   ["vmd-1.9.4a51"]="/opt/tool/vmd-1.9.4a51.LINUXAMD64.tar.gz"
-  ["qe-6.6"]="/opt/software/qe/qe-6.6-ReleasePack.tgz"
 )
 
 # name of the output, i.e. destination of rsync
@@ -73,7 +71,6 @@ pkgs_outputs=(
   ["wien2k-v19.2"]="WIEN2K_19.2.tar"
   ["intel_xe_2020_update4"]="intel_xe_2020_update4.tar.gz"
   ["vmd-1.9.4a51"]="vmd-1.9.4a51.tar.gz"
-  ["qe-6.6"]="qe-6.6.tar.gz"
 )
 
 declare -A pkgs_installers

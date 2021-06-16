@@ -102,9 +102,11 @@ function init_fedora() {
   install_config_tools
   install_sci_tools
 
-  mkdir -p ~/local/programs
-  if [[ ! -d ~/local/modulefiles ]]; then
-    cp -r modulefiles ~/local/
+  mkdir -p "$PREFIX"
+  if [[ ! -d "$(dirname "$PREFIX")/modulefiles" ]]; then
+    cp -ur modulefiles "$(dirname "$PREFIX")"
+  else
+    echo "Found modulefiles under $(dirname "$PREFIX"), skip"
   fi
 
 }
