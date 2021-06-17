@@ -33,7 +33,7 @@
 如果你是第一个使用这台机器的人, 请在联网后输入以下命令:
 
 #+begin_src shell
-rsync -ar yourusername@222.29.156.110:/home/zhangmy/install_tmcstu ~/
+rsync --exclude="repos" --exclude="pkgs" -ar yourusername@222.29.156.110:/home/zhangmy/install_tmcstu ~/
 cd ~/install_tmcstu
 chmod +x install_tmcstu && ./install_tmcstu init
 chmod +x install_repos_pkgs && ./install_repos_pkgs min
