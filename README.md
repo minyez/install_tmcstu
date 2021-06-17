@@ -80,7 +80,7 @@ password free, when you need to retrieve package from the remote server.
 ## Extension
 
 One may need to extend the list of online repositories to be downloaded,
-or retrieve more packages from the TMC workstation.
+or retrieve more packages from the remote server.
 To these ends, they can modify arrays in `extern_repos.sh` and `remote_pkgs.sh`, respectively.
 See either file for more guidance.
 

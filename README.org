@@ -116,6 +116,11 @@ chmod +x install_tmcstu
   - =libxc-4.3.4-intel=
   - =elpa-2019.11.001-intel=
   - =libxsmm-1.15-intel=
+- =qe-6.6-intel=: 用 Intel 编译器编译安装 Quantum Espresso 6.6 及其依赖
+  - =libxc-4.3.4-intel=
+  - =hdf5-1.12.0-intel=
+- =BerkeleyGW-3.0.1-intel=: 用 Intel 编译器编译安装 BerkeleyGW 3.0.1 及其依赖
+  - =hdf5-1.8.21-intel=
 
 为方便使用, 输入
 #+begin_src shell
@@ -218,6 +223,7 @@ sudo service sshd restart
 这一情况在 CCMETMC3 这个路由环境下验证过.
 
 * Changelog
+- 2021-06-17 增加 QE 和 BerkeleyGW 以及对应的 HDF5 安装器
 - 2021-06-10 补充使用无线网卡的 TMCSTU 在内网 SSH 连接时的问题.
 - 2021-05-26 补充 CUDA toolkit 安装和 SSH 连接的 QA.
 - 2021-05-06 =dl= 子命令增加 list 选项以打印所有可下载的内容.

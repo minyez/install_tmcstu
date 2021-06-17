@@ -23,6 +23,7 @@ repos_names=(
   "libxc-5.1.3"
   "v_sim"
   "atat3-44"
+  # CP2k 7.1
   "cp2k-7.1-intel"
   # dependencies for CP2k 7.1
   "spglib-1.16.1-intel"
@@ -30,9 +31,15 @@ repos_names=(
   "libint-v2.6.0-cp2k-lmax-6-intel"
   "elpa-2019.11.001-intel"
   "libxsmm-1.15-intel"
+  # QE 6.6
   "qe-6.6-intel"
   # dependencies for qe
   "hdf5-1.12.0-intel"
+  # BerkeleyGW (BGW) 3.0.1 with parallel HDF5
+  "BerkeleyGW-3.0.1-intel"
+  # dependencies for BGW
+  # BGW 3.0.1 seems to break with MPI support of HDF5 1.12.0, use 1.8.21 is okay
+  "hdf5-1.8.21-intel"
   # placeholders for repos, without implemented URLs
   "netcdf"
 )
@@ -67,6 +74,10 @@ repos_urls=(
   # QE 6.6
   ["qe-6.6-intel"]="https://gitlab.com/QEF/q-e/-/archive/qe-6.6/q-e-qe-6.6.tar.gz"
   ["hdf5-1.12.0-intel"]="https://www.hdfgroup.org/package/hdf5-1-12-0-tar-gz/?wpdmdl=14582&refresh=60c992f7c4d191623823095"
+  # BGW 3.0.1
+  # they use a cloud service with encrypted link, might fail in the future.
+  ["BerkeleyGW-3.0.1-intel"]="https://public.boxcloud.com/d/1/b1!J__Pv-LIztAxB9g0xpEDl1WfV0BkIa6A4peDj00tT7Actfb3W_vhlqrwdIrVbNQcpM-fuEg3wIYDa8o23d1fg1xdWVARBgNXY8LHUZhS6ExRkdEplhQkzHSwoLTqcSqmjkw3H74cXRsiClSxfZ0MoUN7CyL9yZ4JAajIs_tSnRoAQPRl5wRhDKRiKYDbt_S-lyeMVoowsL9v9FQUThAFGo2hVWZ6r-OKoukGn8obVtjLtowOmLAb0dNKrfpXNzGsZTgIAbR5BYLH1o1z2EqqQyqyYjG6rPTjKanREDyIXhSzc-gD9l7TQ_Qwh6dMqVCcSyfdnJYyr6vT56GsvfkXsCQ4cXbCb_UC-UJ5n7ca745AQNIlngSQ1jVy9RRzbaggtjegpG2Md01a2f8h19ShBtyx1oh0KKyv7hOUPGLtnDH8AsQ0ZDENseRX2YI2ow8PSI02SKU2KQUUR0b5ecyYxr6yVoKFhF_DdcgQHU7j4aR0QTCmFJ6abLbqo16dMVxzx6J1OgpQQMYVRUymLnagn8eGQqZL8jxgGeZIGvZFB0rtOYfJAeAmuyFsH0ux9D3NoVvbNcHYjs7kew77CkmM-ckqp7oblgFA3TH-NVZpiz4IR0NtE7SKDwfldvwWg47F6rUXTS3MNxUmghZR_TmjTuubSm5IZgKumVTKCgGB2tdRixAVxEp0ZTgXw75Rjt5qg-_Imt59yjoPP6f_3_cLJoQRm8S19AUA5qayyMZVr8_m-OY6ktf-QFblPURV-AeH-0y0TD3gut20OVriZI0ULFPie5rpYBYyHpxrz6FIeYUEEnJCicE_awTVglQMVGr4x-ETN5EOxAzPRm7BRnpZHQULDl9voVyWWdBdmBpwhs3m_O5OFvi8OOp9sQLPhdvjHW-9mv98YRpeXEGCqXvqTDyr-pKqqlHOEkAVjIdYkyu7sTlcuYGO9G976JidYLcp3gxCM-hGmCaucJrqWfVC7vDRdjI1tLlv8D5sWwSwOT7d1Fk9qymnn0VTOZDnYznpAh9WPD4pIRyk8JsluqDjuArQfguoWMualcdvIcGlAQl5PNyQ5Tfo02K8ZHRH8uRzEZH2FHWH-8ALnUWzThex39mJEwkWzrPX1_79mfDshPtTzViezx71SVgM1_fiur7uWTWAXlU7G993dTXKU11fzWj-J1iP3Le5SN58K-akSqr_Oq_FV64x2-UZaWfQX0BniB-pB555ChzwGlo3hKvhI07UJd-bf9MRftqueXJPKziP75rksZJtTJAEj4NsM9Ok6AEBZjK_XIfTecFROSobYgGf8UCSvFkfmFIMGK0btlh60Oy-0zQzvwGUgsI./download"
+  ["hdf5-1.8.21-intel"]="https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8/hdf5-1.8.21/src/hdf5-1.8.21.tar.gz"
 )
 
 # optional array to set the name of the downloaded file
@@ -78,6 +89,7 @@ repos_outputs=(
   ["spglib-1.16.1-intel"]="spglib-1.16.1.tar.gz"
   ["hdf5-1.12.0-intel"]="hdf5-1.12.0.tar.gz"
   ["qe-6.6-intel"]="qe-6.6.tar.gz"
+  ["BerkeleyGW-3.0.1-intel"]="BerkeleyGW-3.0.1.tar.gz"
 )
 
 declare -A repos_installers
@@ -95,6 +107,8 @@ repos_installers=(
   ["elpa-2019.11.001-intel"]="_elpa_201911001_intel"
   ["qe-6.6-intel"]="_qe_66_intel"
   ["hdf5-1.12.0-intel"]="_hdf5_1120_intel"
+  ["BerkeleyGW-3.0.1-intel"]="_berkeleygw_301_intel"
+  ["hdf5-1.8.21-intel"]="_hdf5_1821_intel"
 )
 
 # write installers here
@@ -491,12 +505,108 @@ function _hdf5_1120_intel() {
   cd "$REPOS_DIR" || return 1
   tar -zxf "$output"
   cd hdf5-1.12.0 || return 1
+  # NOTE: parallel test fails with t_2Gio. Check results in QE
   ./configure --prefix="$target/$dir" \
     CC=mpiicc CPP="mpiicc -E" FC=mpiifort --enable-parallel \
     --enable-fortran --enable-tools --enable-optimization="high" \
   make && make install
   cd "$cwd" || return 1
   # TODO set bashrc
+}
+
+function _hdf5_1821_intel() {
+  #function_body
+  target="$1"
+  name="hdf5-1.8.21-intel"
+  dir="$name"
+  if (check_repo_install "$target" "$dir" "$name"); then
+    output=$(get_repo_output "$name")
+    cwd=$(pwd)
+  else
+    [[ -d "$target/$dir" ]] && return 0
+    return 1
+  fi
+  cd "$REPOS_DIR" || return 1
+  tar -zxf "$output"
+  cd hdf5-1.8.21 || return 1
+  ./configure --prefix="$target/$dir" \
+    CC=mpiicc CPP="mpiicc -E" FC=mpiifort --enable-parallel \
+    --enable-fortran --enable-tools --enable-optimization="high" \
+  make && make install
+  cd "$cwd" || return 1
+}
+
+function _berkeleygw_301_intel() {
+  target="$1"
+  name="BerkeleyGW-3.0.1-intel"
+  dir="$name"
+  if (check_repo_install "$target" "$dir" "$name"); then
+    output=$(get_repo_output "$name")
+    cwd=$(pwd)
+  else
+    [[ -d "$target/$dir" ]] && return 0
+    return 1
+  fi
+  depends=(
+    "hdf5-1.8.21-intel"
+  )
+  echo "Will install dependencies: ${depends[*]}"
+  if ( { for d in "${depends[@]}"; do ${repos_installers[$d]} "$target"; done } ); then
+    cd "$REPOS_DIR" || exit 1
+    tar -zxf "$output"
+    cd "$cwd" || exit 1
+  else
+    echo "Fail to install all dependencies of $name"
+    return 1
+  fi
+  cd "$REPOS_DIR/BerkeleyGW-3.0.1" || return 1
+  echo "Start compiling $name at $REPOS_DIR/BerkeleyGW-3.0.1"
+  # write the arch.mk, make sure that cpp preprocessor, intel MPI and MKL are available
+  echo "Writing arch.mk"
+  cat > arch.mk << EOF
+COMPFLAG  = -DINTEL
+PARAFLAG  = -DMPI -DOMP
+MATHFLAG  = -DUSESCALAPACK -DUNPACKED -DUSEFFTW3 -DHDF5
+
+FCPP    = cpp -C -nostdinc
+F90free = mpiifort -free -qopenmp
+LINK    = mpiifort -free -qopenmp
+FOPTS   = -O3 -g -no-prec-div
+#FNOOPTS = -O2 -no-prec-div
+FNOOPTS = \$(FOPTS)
+MOD_OPT = -module 
+INCFLAG = -I
+
+C_PARAFLAG  = -DPARA -DMPICH_IGNORE_CXX_SEEK
+CC_COMP  = mpiicc
+C_COMP  = mpiicc
+C_LINK  = mpiicc
+C_OPTS  = -O3 -xAVX -qopenmp
+C_DEBUGFLAG =
+
+REMOVE  = /bin/rm -f
+
+# Math Libraries
+FFTWLIB      = \$(MKLROOT)/lib/intel64/libmkl_scalapack_lp64.a -Wl,--start-group \$(MKLROOT)/lib/intel64/libmkl_intel_lp64.a \$(MKLROOT)/lib/intel64/libmkl_core.a \\
+               \$(MKLROOT)/lib/intel64/libmkl_intel_thread.a \$(MKLROOT)/lib/intel64/libmkl_blacs_intelmpi_lp64.a -Wl,--end-group -lpthread -lm -ldl -z muldefs
+FFTWINCLUDE  = \$(MKLROOT)/include/fftw/
+
+HDF5_DIR     = $target/hdf5-1.8.21-intel
+HDF5_LDIR    =  \$(HDF5_DIR)/lib
+HDF5LIB      =  \$(HDF5_LDIR)/libhdf5hl_fortran.a \\
+                \$(HDF5_LDIR)/libhdf5_hl.a \\
+                \$(HDF5_LDIR)/libhdf5_fortran.a \\
+                \$(HDF5_LDIR)/libhdf5.a -lz -ldl
+HDF5INCLUDE  = \$(HDF5_DIR)/include
+
+LAPACKLIB    = \$(FFTWLIB)
+EOF
+  make all-flavors || return 1
+  make install INSTDIR="$target/$dir" || return 1
+  cd "$cwd" || return 1
+  echo "Check BGW installation by entering $REPOS_DIR/BerkeleyGW-3.0.1 and run"
+  echo "  make check"
+  echo "  make check-parallel"
 }
 
 function _install_repo_rpm() {
