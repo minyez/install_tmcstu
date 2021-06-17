@@ -30,7 +30,7 @@
 文件夹下的 =README= (org 或 md 文件)
 #+end_quote
 
-在 =tmcstu= 家目录下查看手否有 =install_tmcstu= 这一文件夹.
+在 =tmcstu= 家目录下查看是否有 =install_tmcstu= 这一文件夹.
 如果没有, 那你就很可能是第一个使用这台机器的人, 请在联网后输入以下命令:
 
 #+begin_src shell
