@@ -53,7 +53,7 @@ That's all :) 下面几节是对上面命令的具体解释和一些扩展功能
 Fedora 环境初始化和基础软件安装通过 =install_tmcstu= 脚本完成,
 该脚本可从工作站获取
 #+begin_src shell
-rsync -ar yourusername@222.29.156.110:/home/zhangmy/install_tmcstu .
+rsync --exclude="repos" --exclude="pkgs" -ar yourusername@222.29.156.110:/home/zhangmy/install_tmcstu .
 #+end_src
 
 在终端依次输入
