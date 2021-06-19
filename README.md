@@ -72,7 +72,9 @@ in `extern_repos.sh` or `remote_pkgs.sh`.
 
 See `custom.sh`
 
-- `PREFIX`: target directory to install the repos and packages by `install_repos_pkgs`
+- `PREFIX`: target directory to install the repos and packages by `install_repos_pkgs`.
+- `REPO_SOURCES`: source mirror for Fedora packages to replace the official. Default to `THU` for using mirrors maintained by [TUNA](https://mirrors.tuna.tsinghua.edu.cn/fedora). Use an empty string to disable the replacement.
+- `MAKE_NPROCS`: number of tasks for make, default to 1.
 
 Also remember to change `SSH_CONNECTION` in `remote_pkgs.sh` and make the connection
 password free, when you need to retrieve package from the remote server.
