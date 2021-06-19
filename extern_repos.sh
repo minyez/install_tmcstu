@@ -587,18 +587,22 @@ C_DEBUGFLAG =
 REMOVE  = /bin/rm -f
 
 # Math Libraries
-FFTWLIB      = \$(MKLROOT)/lib/intel64/libmkl_scalapack_lp64.a -Wl,--start-group \$(MKLROOT)/lib/intel64/libmkl_intel_lp64.a \$(MKLROOT)/lib/intel64/libmkl_core.a \\
-               \$(MKLROOT)/lib/intel64/libmkl_intel_thread.a \$(MKLROOT)/lib/intel64/libmkl_blacs_intelmpi_lp64.a -Wl,--end-group -lpthread -lm -ldl -z muldefs
-FFTWINCLUDE  = \$(MKLROOT)/include/fftw/
-
 HDF5_DIR     = $target/hdf5-1.8.21-intel
 HDF5_LDIR    =  \$(HDF5_DIR)/lib
-HDF5LIB      =  \$(HDF5_LDIR)/libhdf5hl_fortran.a \\
-                \$(HDF5_LDIR)/libhdf5_hl.a \\
-                \$(HDF5_LDIR)/libhdf5_fortran.a \\
-                \$(HDF5_LDIR)/libhdf5.a -lz -ldl
-HDF5INCLUDE  = \$(HDF5_DIR)/include
+## static link leading to large executable (~1.9G)
+#FFTWLIB      = \$(MKLROOT)/lib/intel64/libmkl_scalapack_lp64.a -Wl,--start-group \$(MKLROOT)/lib/intel64/libmkl_intel_lp64.a \$(MKLROOT)/lib/intel64/libmkl_core.a \\
+#               \$(MKLROOT)/lib/intel64/libmkl_intel_thread.a \$(MKLROOT)/lib/intel64/libmkl_blacs_intelmpi_lp64.a -Wl,--end-group -lpthread -lm -ldl -z muldefs
+#HDF5LIB      =  \$(HDF5_LDIR)/libhdf5hl_fortran.a \\
+#                \$(HDF5_LDIR)/libhdf5_hl.a \\
+#                \$(HDF5_LDIR)/libhdf5_fortran.a \\
+#                \$(HDF5_LDIR)/libhdf5.a -lz -ldl
+# dynamic link (~230M). Remember to add HDF5 and MKL libs to LD_LIBRARY_PATH when use
+FFTWLIB      = -L\$(MKLROOT)/lib/intel64 -lmkl_scalapack_lp64 -lmkl_intel_lp64 -lmkl_core \\
+               -lmkl_intel_thread -lmkl_blacs_intelmpi_lp64 -lpthread -lm -ldl -z muldefs
+HDF5LIB      = -L\$(HDF5_LDIR) -lhdf5hl_fortran -lhdf5_hl -lhdf5_fortran -lhdf5 -lz -ldl
 
+FFTWINCLUDE  = \$(MKLROOT)/include/fftw/
+HDF5INCLUDE  = \$(HDF5_DIR)/include
 LAPACKLIB    = \$(FFTWLIB)
 EOF
   make all-flavors || return 1
@@ -606,7 +610,6 @@ EOF
   cd "$cwd" || return 1
   echo "Check BGW installation by entering $REPOS_DIR/BerkeleyGW-3.0.1 and run"
   echo "  make check"
-  echo "  make check-parallel"
 }
 
 function _install_repo_rpm() {
