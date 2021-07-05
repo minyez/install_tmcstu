@@ -69,7 +69,7 @@ function install_sci_tools () {
     texlive-{tabulary,appendix,augie,autonum,autopdf,babel,babelbib} \
     texlive-{tikz-dependency,tikz-3dplot}
   sudo dnf -y install texlive-beamer{,audience}
-  sudo dnf -y install texlive-{vancouver,achemso,tocbibind,pkuthss,pkuthss-doc} \
+  sudo dnf -y install texlive-{vancouver,revtex,revtex-doc,revtex4,revtex4-doc,achemso,tocbibind,pkuthss,pkuthss-doc} \
     texlive-biblatex-{chem,chicago,phys,publist}
 
   return
