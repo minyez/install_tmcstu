@@ -12,6 +12,7 @@ function help() {
   echo "  vc     : verify cuda installation"
   echo "  docker : install Docker engine"
   echo "  vscode : install Visual Studio Code"
+  echo "  fulltl : install the full set of packages of TeXLive distribution (~2G)"
   echo ""
   echo "Notes: "
   echo "  1. installation here mostly uses \`dnf\`"
@@ -61,17 +62,24 @@ function install_sci_tools () {
   # texstudio and texlive for writing tex, texdoc for documentation
   # extra useful packages
   sudo dnf -y install units \
-    grace gnuplot ImageMagick ghostscript povray \
-    texstudio texlive texlive-{texdoc,texlive-en-doc,texlive-zh-cn-doc}
+    grace gnuplot ImageMagick ghostscript povray
+  sudo dnf -y install texstudio texlive texlive-scheme-medium texlive-{texlive-en-doc,texlive-zh-cn-doc}
   sudo dnf -y install texlive-{ctex,xcjk2uni} \
     texlive-{physics,abstract,wordcount,xargs,worksheet,wordlike,zhnumber} \
     texlive-{cleveref,overpic,SIunits,a0poster,algorithmicx,algorithms,answers,annotate} \
     texlive-{tabulary,appendix,augie,autonum,autopdf,babel,babelbib} \
-    texlive-{tikz-dependency,tikz-3dplot}
+    texlive-{tikz-dependency,tikz-3dplot} \
+    texlive-epstopdf{,-bin,-doc}
   sudo dnf -y install texlive-beamer{,audience}
   sudo dnf -y install texlive-{vancouver,revtex,revtex-doc,revtex4,revtex4-doc,achemso,tocbibind,pkuthss,pkuthss-doc} \
     texlive-biblatex-{chem,chicago,phys,publist}
 
+  return
+}
+
+function install_texlive_full () {
+  # the full texlive packages, in Fedora it is texlive-scheme-full
+  sudo dnf -y install texlive-scheme-full
   return
 }
 
@@ -173,6 +181,7 @@ function main() {
       "vc"     ) verify_cuda;;
       "docker" ) install_docker ;;
       "vscode" ) install_vscode ;;
+      "fulltl" ) install_texlive_full ;;
 #      "-p" ) install_pyenv ;;
 #      "conda" ) install_conda ;;
       * ) echo "Error: unknown command/option " "${opts[0]}"; \
