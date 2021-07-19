@@ -19,7 +19,7 @@ function help() {
   echo "  1. more tools: conda, pyenv, netcdf"
   echo "  2. more science code: pyscf, Wannier90, QE, abinit, deepmd, lammps"
   echo ""
-  echo "Update: 2021-06-17"
+  echo "Update: 2021-07-19"
   echo ""
   echo "Contributors: MY Zhang"
   echo ""
@@ -99,7 +99,9 @@ function _retrieve_all_pkgs() {
       _retrieve_pkg "$name" 0
     done
   else
-    echo "Error: fail to connect to remote under ${SSH_CONNECTION}. Please check IP and SSH setup."
+    echo "Error: fail to connect to remote under ${SSH_CONNECTION}."
+    echo "Please check IP and SSH setup of SSH_CONNECTION in remote_pkgs.sh"
+    return 1
   fi
 }
 

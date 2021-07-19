@@ -164,12 +164,13 @@ function _vasp_544_intel() {
     return 1
   fi
   cp -r "$PKGS_DIR/$output" "$target/$dir" && cd "$target/$dir" || exit 1
-  if ({ make clean; make all; }); then
-    pass
+  if ({ make veryclean; make all; }); then
+  # bash equivalent to pass in Python
+    :
   else
     echo "Something wrong in compiling VASP. Check error log above."
     echo "When break at linking, it is very possible that "
-    echo "libfftw3xf_intel.a is missing. To resolve, try "
+    echo "libfftw3xf_intel.a is missing under MKLROOT/interfaces/fftw3xf. To resolve, try "
     echo ""
     echo "  cd $MKLROOT/interfaces/fftw3xf"
     echo "  make libintel64"
@@ -222,6 +223,7 @@ function _intel_xe_20_u4() {
   echo "    1. it would be consistent to install under $target/$dir"
   echo "    2. you may need License to proceed. You can get your own from Intel site, or"
   echo "       obtain from server by ./install_repos_pkgs.sh intel_licenses and find them at $target/intel_licenses"
+  echo "    3. after installation, you may find the modulefile 'modulefiles/compilers/intel/2020.4' useful"
   echo ""
   cd "$cwd" || return 1
 }

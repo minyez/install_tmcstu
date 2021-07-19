@@ -90,7 +90,10 @@ function rsync_pkg() {
   esac
 
   if [[ "$if_check_ssh" != 0 ]]; then
-    ssh_connection_check "$connection" || return 1
+    ssh_connection_check "$connection" || { \
+      echo "Error: fail to connect to remote under ${connection}."; \
+      echo "Please check IP and SSH setup"; \
+      return 1; }
   fi
 
   mkdir -p "$(dirname "$dest")"

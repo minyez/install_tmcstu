@@ -22,7 +22,7 @@ function help() {
   echo "  1. obtain newest workable hosts and setup for Google and GitHub, etc"
   echo "  2. config scripts, patches, makefile, modulefiles, etc"
   echo ""
-  echo "Update: 2021-05-28"
+  echo "Update: 2021-07-19"
   echo ""
   echo "Contributors: MY Zhang"
   echo ""
@@ -106,9 +106,7 @@ function init_fedora() {
   sudo dnf -y update
   sudo dnf -y upgrade
 
-  install_network_tools
-  install_config_tools
-  install_sci_tools
+  install_tools
 
   mkdir -p "$PREFIX"
   if [[ ! -d "$(dirname "$PREFIX")/modulefiles" ]]; then
@@ -116,7 +114,12 @@ function init_fedora() {
   else
     echo "Found modulefiles under $(dirname "$PREFIX"), skip"
   fi
+}
 
+function install_tools() {
+  install_network_tools
+  install_config_tools
+  install_sci_tools
 }
 
 function install_cuda() {
@@ -177,6 +180,9 @@ function main() {
     case ${opts[0]} in
       "help" | "h" | "-h" | "--help" ) help "$0" ;;
       "init"   ) init_fedora ;;
+      # tools is a hidden command, it is called in init
+      # Put it here for test use without changing the repo or updating
+      "tools"  ) install_tools ;;
       "cuda"   ) install_cuda;;
       "vc"     ) verify_cuda;;
       "docker" ) install_docker ;;

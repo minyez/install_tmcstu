@@ -1,4 +1,4 @@
-#+TITLE: TMC 组新款学生 PC 的基本使用指南
+#+TITLE: TMC 组学生 PC 的基本使用指南
 #+EMAIL: stevezhang@pku.edu.cn
 #+AUTHOR: Min-Ye Zhang
 #+STARTUP: content
@@ -22,16 +22,23 @@
 | GPU  | NVIDIA Quadro P620 (128 \times 4 CUDA cores, 2GB Mem)                                     |
 
 * 软件
+** 前排提醒
+在使用前, 确认电脑已经联入公网, 例如通过浏览器访问 www.baidu.com 来测试.
+如果未联入公网, 需要登录 [[https://its.pku.edu.cn][ITS]] 连入北大网关.
+
+对于新入门 Linux 系统的同学来说, 在输入相关命令时, 最好试着去了解命令所涉及的 Linux 程序和相关的基础语法.
+如有可能, 可以读一下 =install_tmcstu= 的源码, 了解一下 bash 脚本的编写, 对以后的工作会有帮助.
+
 ** 快速上手
 
 #+begin_quote
 注意: 如果你手上的是旧版本的 =install_tmcstu=, 其中可执行脚本均带有 sh 后缀,
-那么这一版本的说明是不适用的. 请使用旧版 (changelog 截止至 2021-04-29), 或阅读
+那么这一版本的说明对你是不适用的. 请使用旧版 (changelog 截止至 2021-04-29), 或阅读
 文件夹下的 =README= (org 或 md 文件)
 #+end_quote
 
 在 =tmcstu= 家目录下查看是否有 =install_tmcstu= 这一文件夹.
-如果没有, 那你就很可能是第一个使用这台机器的人, 请在联网后输入以下命令:
+如果没有, 那你就很可能是第一个使用这台机器的人, 请在[[前排提醒][联网]]后输入以下命令:
 
 #+begin_src shell
 rsync --exclude="repos" --exclude="pkgs" -ar yourusername@222.29.156.110:/home/zhangmy/install_tmcstu ~/
@@ -49,7 +56,7 @@ chmod +x install_repos_pkgs && ./install_repos_pkgs min
 That's all :) 下面几节是对上面命令的具体解释和一些扩展功能, 感兴趣的话可以阅读.
 
 ** 环境初始化
-新 PC 的初始用户名为 =tmcstu=. 用户名可保持不变, 建议通过 =passwd= 修改密码.
+新 PC 的初始用户名为 =tmcstu=. 建议保持用户名不变, 通过 =passwd= 修改密码.
 
 Fedora 环境初始化和基础软件安装通过 =install_tmcstu= 脚本完成,
 该脚本可从工作站获取
@@ -60,6 +67,7 @@ rsync --exclude="repos" --exclude="pkgs" -ar yourusername@222.29.156.110:/home/z
 #+begin_src shell
 git clone https://github.com/minyez/install_tmcstu.git
 #+end_src
+GitHub 上的版本通常比工作站上的更新.
 随后在终端依次输入
 #+begin_src shell
 cd install_tmcstu
@@ -73,6 +81,15 @@ chmod +x install_tmcstu
 ./install_tmcstu help
 #+end_src
 
+** 安装 VirtualBox 和 Windows 虚拟机
+在 Fedora 32 上, 有两种方式可以安装 VirtualBox.
+1. 从源安装: =sudo dnf install VirtualBox=. 安装完成后可以在终端输入 =virtualbox= 打开.
+2. 从官方网站下载镜像 ([[https://download.virtualbox.org/virtualbox/6.1.22/VirtualBox-6.1-6.1.22_144080_fedora32-1.x86_64.rpm][蒋老师提供的链接]]). 下载完成后双击打开 rpm 文件, 或运行
+   #+begin_src shell
+   sudo rpm -i Virtualbox.rpm
+   #+end_src
+
+Windows 虚拟机可以使用蒋老师提供的 Win7 系统文件, 工作站位置为 =/home/data_papers/vbox/win7.vdi=
 
 ** 常用科研工具
 脚本 =install_repos_pkgs= 实现了部分与课题组有关的科研工具 (例如可视化工具, 编译器, 第一性原理计算软件)
@@ -134,6 +151,53 @@ chmod +x install_tmcstu
 
 目前, 自动安装的程序都会置于 =~/local/programs= 下, 或通过 rpm 安装到根目录中.
 建议在手动安装的程序时也遵循这一设置.
+
+** 安装 Intel 2020 Update 4 编译套件
+由于 Intel 编译套件有自己的交互式安装脚本, 不适用于安装器自动安装的方式, 需要手动安装.
+又由于大部分计算程序的编译都依赖 Intel 编译套件, 因此为帮助大家更好地使用这些脚本的功能, 有必要的在这里详细说明一下 Intel 编译套件的安装过程.
+这里呈现的是较新的 2020 update 4 版本的安装过程, 更早版本的安装是类似的.
+
+安装所需要的文件 (包括源文件和许可证) 可以从工作站上获取
+#+begin_src shell
+./install_repos_pkgs intel_licenses        # 许可证
+./install_repos_pkgs intel_xe_2020_update4 # 源文件
+#+end_src
+其中第二步在下载源文件的同时, 会给出详细的手动安装提示.
+这一小节往后的文字就是对该提示的一个样例.
+以用户 tmcstu, 安装路径为 =~/local/programs= 为例, 获取源文件后输入
+#+begin_src shell
+cd ~/install_tmcstu/pkgs/intel_xe_2020_update4
+chmod +x install.sh && ./install.sh
+#+end_src
+开始交互式安装, 根据安装提示前进即可. 只需要注意两点
+
+1. 在选择安装路径时, 输入绝对路径 =/home/tmcstu/local/programs/intel_xe_2020_update4=.
+
+   这样做的目的主要是为了保持程序安装目录的一致性.
+2. 在激活时, 采用 offline 方式激活, 选择 license file 许可文件.
+
+   随后输入 =~/local/programs/intel_licenses= 文件夹下最新的许可文件 (截止 2021-07-09 为尾号 =FMTG= 的文件) 的绝对路径.
+
+安装完成后需要正确设置环境变量才可以使用编译器和 MKL 数学库.
+有两种设置相关环境变量的方式.
+第一种是载入 Intel 自带的设置脚本,
+#+begin_src shell
+source ~/local/programs/intel_xe_2020_update4/compilers_and_libraries/linux/bin/compilervars.sh intel64
+#+end_src
+可将该命令放入 =.bashrc= 以备之后使用.
+第二种是配置 Environment module, 模块文件为 =modulefiles/compilers/intel/2020.4=. 输入如下命令
+#+begin_src shell
+mkdir -p ~/local/modulefiles/compilers/intel
+cd ~/local/modulefiles/compilers/intel
+cp -a ~/install_tmcstu/modulefiles/compilers/intel/2020.4 .
+sed -i 's#/opt/compiler/intel/2020.4/#~/local/programs/intel_xe_2020_update4#g' 2020.4
+module use ~/local/modulefiles/compilers # 可放入 bashrc 中
+module load intel/2020.4 # 可放入 bashrc 中
+#+end_src
+以启用.
+
+无论使用何种方式, 在设置好后尝试 =echo $MKLROOT= 或 =which mpiifort=, 若打印出非空字符串, 则说明环境变量配置正确, 安装完成, 编译器和 MKL 等应该可以使用了 :)
+
 ** 安装其他工具
 *** CUDA toolkit
 如需安装 CUDA toolkit, 输入
@@ -227,6 +291,8 @@ sudo service sshd restart
 这一情况在 CCMETMC3 这个路由环境下验证过.
 
 * Changelog
+- 2021-07-19 Intel 编译器安装
+- 2021-07-13 增加有关联网的说明和 VASP 安装的说明
 - 2021-06-17 增加 QE 和 BerkeleyGW 以及对应的 HDF5 安装器
 - 2021-06-10 补充使用无线网卡的 TMCSTU 在内网 SSH 连接时的问题.
 - 2021-05-26 补充 CUDA toolkit 安装和 SSH 连接的 QA.
