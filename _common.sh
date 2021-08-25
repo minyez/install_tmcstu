@@ -31,9 +31,9 @@ function wget_link_source() {
     * ) name="$1"; url="$2"; output="$3";;
   esac
   if [[ -n "$output" ]]; then
-    wget_cmd="wget -nv --report-speed=bits $url -O $output"
+    wget_cmd="wget -nv --show-progress --progress=bar:force $url -O $output"
   else
-    wget_cmd="wget -nv --report-speed=bits $url"
+    wget_cmd="wget -nv --show-progress --progress=bar:force $url"
   fi
   logname=tmcstu_pcws_wget.log
   echo "==wget==: try downloading $name with"
@@ -44,7 +44,7 @@ function wget_link_source() {
   fi
   if ($wget_cmd 2>&1 | tee "$logname"); then
     if [[ -n "$output" ]]; then
-      echo "Success: $name downloaded as $3"
+      echo "Success: $name downloaded as $output"
     else
       echo "Success: $name downloaded"
     fi

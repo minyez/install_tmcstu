@@ -43,7 +43,7 @@ function install_config_tools() {
   # use the stable version from fedora repo instead of update
   sudo dnf --disablerepo="*" --enablerepo=fedora -y install gcc gfortran gcc-c++
   sudo dnf -y install \
-    make cmake autoconf automake git binutils binutils-devel \
+    make cmake autoconf automake git binutils binutils-devel tcsh \
     bzip2 gzip p7zip \
     environment-modules \
     vim-enhanced neovim \
