@@ -234,6 +234,9 @@ function _xcrysden() {
   sudo dnf -y install tk tk-devel tcl tcl-devel tcl-togl tcl-togl-devel openbabel openbabel-devel \
     fftw-libs libXmu libXmu-devel libX11-devel mesa-libGLU mesa-libGLU-devel ImageMagick
   # one needs to download 64-bit Togl 2.0 to make it work on Fedora > 30
+  # if running xcrysden gives error about viewmol,
+  # try comment out accum* in Tcl/viewer.tcl and Tcl/fs/FS_{Main,Multi}.tcl
+  # see https://www-democritos-it/pipermail/xcrysden/2014-October/001654.html
   FEDORA_VERSION=$(get_fedora_ver)
   if (( FEDORA_VERSION >= 30 )); then
     if (wget_link_source "libTogl2" \

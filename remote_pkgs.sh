@@ -21,7 +21,7 @@ SSH_CONNECTION="ws"
 #  2. info=progress2 to give a summary of current speed and progress. For old version rsync, one should use --progress instead
 #  3. Caveat: may break if the remote server is behind some route such that a port number may be required
 #     A workaround: add `-p port ` option in rsync or before the account
-rsync_opts="--exclude=*.o --exclude=*.mod --exclude=*.out --exclude=*.pyc --exclude=vasp --exclude=vasp_* -azru --info=progress2 "
+rsync_opts="--exclude=*.o --exclude=*.mod --exclude=*.out --exclude=*.pyc --exclude=vasp --exclude=vasp_* -azru --progress "
 #
 
 pkgs_names=(
