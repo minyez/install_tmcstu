@@ -23,7 +23,7 @@ function help() {
   echo "  1. obtain newest workable hosts and setup for Google and GitHub, etc"
   echo "  2. config scripts, patches, makefile, modulefiles, etc"
   echo ""
-  echo "Update: 2021-07-19"
+  echo "Update: 2021-12-06"
   echo ""
   echo "Contributors: MY Zhang"
   echo ""
