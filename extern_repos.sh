@@ -30,6 +30,7 @@ repos_names=(
   "libxc-4.3.4-intel"
   "libint-v2.6.0-cp2k-lmax-6-intel"
   "elpa-2019.11.001-intel"
+  "elpa-2022.05.001-intel"
   "libxsmm-1.15-intel"
   # QE 6.6
   "qe-6.6-intel"
@@ -69,6 +70,7 @@ repos_urls=(
   ["spglib-1.16.1-intel"]="https://github.com/spglib/spglib/archive/refs/tags/v1.16.1.tar.gz"
   ["libxc-4.3.4-intel"]="http://www.tddft.org/programs/libxc/down.php?file=4.3.4/libxc-4.3.4.tar.gz"
   ["elpa-2019.11.001-intel"]="https://elpa.mpcdf.mpg.de/software/tarball-archive/Releases/2019.11.001/elpa-2019.11.001.tar.gz"
+  ["elpa-2022.05.001-intel"]="https://elpa.mpcdf.mpg.de/software/tarball-archive/Releases/2022.05.001/elpa-2022.05.001.tar.gz"
   ["libint-v2.6.0-cp2k-lmax-6-intel"]="https://github.com/cp2k/libint-cp2k/releases/download/v2.6.0/libint-v2.6.0-cp2k-lmax-6.tgz"
   ["libxsmm-1.15-intel"]="https://www.cp2k.org/static/downloads/libxsmm-1.15.tar.gz"
   # QE 6.6
@@ -105,6 +107,7 @@ repos_installers=(
   ["libint-v2.6.0-cp2k-lmax-6-intel"]="_libint_260_cp2k_lm6_intel"
   ["libxsmm-1.15-intel"]="_libxsmm_115_intel"
   ["elpa-2019.11.001-intel"]="_elpa_201911001_intel"
+  ["elpa-2022.05.001-intel"]="_elpa_202205001_intel"
   ["qe-6.6-intel"]="_qe_66_intel"
   ["hdf5-1.12.0-intel"]="_hdf5_1120_intel"
   ["BerkeleyGW-3.0.1-intel"]="_berkeleygw_301_intel"
@@ -332,6 +335,46 @@ function _elpa_201911001_intel() {
   ### # XPASS: 0
   ### # ERROR: 0
   ### 210429, stevezhang, intel 2018.1
+  ### 220829, stevezhang, intel oneAPI 22.1, cannot compile
+  ###  PPFC     src/helpers/libelpa_private_la-mod_precision.lo
+  ###Traceback (most recent call last):
+  ###  File "/home/minyez/Downloads/install_tmcstu/repos/elpa-2019.11.001/./manual_cpp", line 33, in <module>
+  ###    if len(files) > 1:
+  ###TypeError: object of type 'filter' has no len()
+  cd "$cwd" || exit 1
+}
+
+function _elpa_202205001_intel() {
+  target="$1"
+  name="elpa-2022.05.001-intel"
+  dir="$name"
+  if (check_repo_install "$target" "$dir" "$name"); then
+    output=$(get_repo_output "$name")
+    cwd=$(pwd)
+  else
+    [[ -d "$target/$dir" ]] && return 0
+    return 1
+  fi
+  cd "$REPOS_DIR" || return 1
+  tar -zxf "$output"
+  cd elpa-2022.05.001 || return 1
+  [[ -z "$MKLROOT" ]] && { echo "Error: You must set MKLROOT before installing $name"; return 1; }
+  ### TODO issue: ifort: specifying -lm before files may supersede the Intel(R) math library and affect performance
+  libs=$(echo -L"$MKLROOT/lib/intel64" -lmkl_{scalapack_lp64,intel_lp64,sequential,core,blacs_intelmpi_lp64} -lpthread -ldl)
+  # rpath to let mkl automatically loaded when running elpa
+  # remove -lm to avoid possible performance loss according to compiler warning
+  ./configure FC=mpiifort CC=mpiicc CXX=mpiicpc --prefix="$target/$dir" \
+    SCALAPACK_LDFLAGS="$libs -Wl,-rpath,$MKLROOT/lib/intel64" \
+    SCALAPACK_FCFLAGS="$libs -I$MKLROOT/include"
+  make clean && make -j"${MAKE_NPROCS}" && make install
+  ### 220829, stevezhang, intel oneAPI 22.1
+  ### TOTAL: 113
+  ### PASS:  21
+  ### SKIP:  56
+  ### XFAIL: 0
+  ### FAIL:  36
+  ### XPASS: 0
+  ### ERROR: 0
   cd "$cwd" || exit 1
 }
 
